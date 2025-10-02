@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Uddhav-Saikia/Digital-Twin-of-EVH-substation-/static/css/main.af4fb56f.css",
+    "main.js": "/Uddhav-Saikia/Digital-Twin-of-EVH-substation-/static/js/main.6ba902cd.js",
+    "static/js/453.d13086a4.chunk.js": "/Uddhav-Saikia/Digital-Twin-of-EVH-substation-/static/js/453.d13086a4.chunk.js",
+    "index.html": "/Uddhav-Saikia/Digital-Twin-of-EVH-substation-/index.html",
+    "main.af4fb56f.css.map": "/Uddhav-Saikia/Digital-Twin-of-EVH-substation-/static/css/main.af4fb56f.css.map",
+    "main.6ba902cd.js.map": "/Uddhav-Saikia/Digital-Twin-of-EVH-substation-/static/js/main.6ba902cd.js.map",
+    "453.d13086a4.chunk.js.map": "/Uddhav-Saikia/Digital-Twin-of-EVH-substation-/static/js/453.d13086a4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.af4fb56f.css",
+    "static/js/main.6ba902cd.js"
+  ]
+}
