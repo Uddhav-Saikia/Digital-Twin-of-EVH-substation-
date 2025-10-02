@@ -1,25 +1,37 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import AssetManagement from './pages/AssetManagement';
+import AssetDetail from './pages/AssetDetail';
+import Monitoring from './pages/Monitoring';
+import Analytics from './pages/Analytics';
+import Visualization from './pages/Visualization';
+import Maintenance from './pages/Maintenance';
+import Simulation from './pages/Simulation';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/assets" element={<AssetManagement />} />
+          <Route path="/assets/:type/:id" element={<AssetDetail />} />
+          <Route path="/monitoring" element={<Monitoring />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/visualization" element={<Visualization />} />
+          <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="/simulation" element={<Simulation />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 

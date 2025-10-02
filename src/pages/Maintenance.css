@@ -1,0 +1,58 @@
+/* Maintenance.css */
+.maintenance { max-width: 1400px; }
+.maintenance-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); display: flex; gap: 16px; align-items: center; }
+.stat-icon { flex-shrink: 0; }
+.stat-icon.scheduled { color: #3b82f6; }
+.stat-icon.in-progress { color: #f59e0b; }
+.stat-icon.completed { color: #22c55e; }
+.stat-icon.overdue { color: #ef4444; }
+.stat-content { flex: 1; }
+.stat-value { font-size: 28px; font-weight: 700; color: #111827; line-height: 1; }
+.stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.maintenance-filters { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; padding: 16px; background: white; border-radius: 12px; }
+.filter-btn { background: none; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 6px; font-size: 14px; color: #6b7280; cursor: pointer; transition: all 0.2s; }
+.filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+.maintenance-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+.maintenance-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-left: 4px solid #d1d5db; }
+.maintenance-card.scheduled { border-left-color: #3b82f6; }
+.maintenance-card.in-progress { border-left-color: #f59e0b; }
+.maintenance-card.completed { border-left-color: #22c55e; }
+.maintenance-card.overdue { border-left-color: #ef4444; }
+.maintenance-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+.maintenance-asset h3 { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+.asset-type { font-size: 13px; color: #6b7280; }
+.maintenance-status { display: flex; align-items: center; gap: 8px; }
+.status-icon { flex-shrink: 0; }
+.status-text { font-size: 13px; font-weight: 500; text-transform: capitalize; }
+.status-text.scheduled { color: #3b82f6; }
+.status-text.in-progress { color: #f59e0b; }
+.status-text.completed { color: #22c55e; }
+.status-text.overdue { color: #ef4444; }
+.maintenance-body { margin-bottom: 16px; }
+.maintenance-description { font-size: 14px; color: #111827; margin-bottom: 12px; line-height: 1.5; }
+.maintenance-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7280; }
+.meta-label { font-weight: 500; }
+.maintenance-type { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
+.maintenance-type.preventive { background: #dbeafe; color: #1e40af; }
+.maintenance-type.corrective { background: #fed7aa; color: #92400e; }
+.maintenance-type.predictive { background: #e9d5ff; color: #6b21a8; }
+.priority-badge { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
+.priority-critical { background: #fee2e2; color: #991b1b; }
+.priority-high { background: #fed7aa; color: #92400e; }
+.priority-medium { background: #fef3c7; color: #92400e; }
+.priority-low { background: #e0e7ff; color: #3730a3; }
+.maintenance-actions { display: flex; gap: 8px; }
+.btn-primary.urgent { background: #ef4444; }
+.btn-primary.urgent:hover { background: #dc2626; }
+.maintenance-calendar-section { margin-bottom: 32px; }
+.calendar-placeholder { background: white; padding: 60px 40px; border-radius: 12px; text-align: center; border: 2px dashed #e5e7eb; }
+.calendar-icon { margin: 0 auto 20px; color: #d1d5db; }
+.calendar-placeholder h3 { font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 8px; }
+.calendar-placeholder p { font-size: 14px; color: #6b7280; margin-bottom: 16px; }
+.diagnostics-section { margin-bottom: 32px; }
+.diagnostics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
+.diagnostic-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.diagnostic-card h3 { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 8px; }
+.diagnostic-card p { font-size: 13px; color: #6b7280; margin-bottom: 16px; }
