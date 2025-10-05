@@ -4,6 +4,10 @@
   flex-direction: column;
 }
 
+.dark .layout-container {
+  background-color: #111827;
+}
+
 /* Top Navigation */
 .top-nav {
   height: 60px;
@@ -17,6 +21,12 @@
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.dark .top-nav {
+  background: #0f172a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .top-nav-left {
@@ -99,10 +109,25 @@
   border-right: 1px solid #e5e7eb;
   overflow-y: auto;
   transition: all 0.3s;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  height: calc(100vh - 60px);
+  z-index: 50;
+}
+
+.dark .sidebar {
+  background: #1f2937;
+  border-right-color: #374151;
 }
 
 .sidebar.closed {
   width: 70px;
+}
+
+/* When sidebar is closed, adjust main content margin */
+.sidebar.closed ~ .main-content {
+  margin-left: 70px;
 }
 
 .sidebar-nav {
@@ -127,7 +152,26 @@
   color: #111827;
 }
 
+.dark .nav-item:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
 .nav-item.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.dark .nav-item {
+  color: #ffffff;
+}
+
+.dark .nav-item:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+.dark .nav-item.active {
   background: #3b82f6;
   color: white;
 }
@@ -163,6 +207,11 @@
   margin-top: 2px;
 }
 
+.dark .nav-description {
+  opacity: 0.8;
+  color: #ffffff;
+}
+
 .sidebar.closed .nav-content {
   display: none;
 }
@@ -173,36 +222,10 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  margin-left: 260px;
+  transition: margin-left 0.3s;
 }
 
-.breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 24px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 14px;
-}
-
-.breadcrumbs a {
-  color: #6b7280;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.breadcrumbs a:hover {
-  color: #3b82f6;
-}
-
-.breadcrumbs a.active {
-  color: #111827;
-  font-weight: 500;
-}
-
-.breadcrumb-separator {
-  color: #d1d5db;
-}
 
 .page-content {
   flex: 1;
@@ -210,19 +233,22 @@
   overflow-y: auto;
 }
 
+.dark .page-content {
+  background: #111827;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 60px;
-    bottom: 0;
-    z-index: 50;
     transform: translateX(-100%);
   }
 
   .sidebar.open {
     transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
   }
 
   .app-title {

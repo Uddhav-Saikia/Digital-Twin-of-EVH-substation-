@@ -1,7 +1,33 @@
 /* Maintenance.css */
 .maintenance { max-width: 1400px; }
+
+.dark .maintenance {
+  background: #111827;
+}
+
+/* Ensure all headings and text in Maintenance are white in dark mode */
+.dark .maintenance h1,
+.dark .maintenance h2,
+.dark .maintenance h3,
+.dark .maintenance h4,
+.dark .maintenance h5,
+.dark .maintenance h6 {
+  color: #ffffff !important;
+}
+
+.dark .maintenance p,
+.dark .maintenance span,
+.dark .maintenance div,
+.dark .maintenance label {
+  color: #ffffff !important;
+}
 .maintenance-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); display: flex; gap: 16px; align-items: center; }
+
+.dark .stat-card {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
 .stat-icon { flex-shrink: 0; }
 .stat-icon.scheduled { color: #3b82f6; }
 .stat-icon.in-progress { color: #f59e0b; }
@@ -9,19 +35,63 @@
 .stat-icon.overdue { color: #ef4444; }
 .stat-content { flex: 1; }
 .stat-value { font-size: 28px; font-weight: 700; color: #111827; line-height: 1; }
+
+.dark .stat-value {
+  color: #ffffff;
+}
 .stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+
+.dark .stat-value {
+  color: #ffffff;
+}
+
+.dark .stat-label {
+  color: #ffffff;
+}
 .maintenance-filters { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; padding: 16px; background: white; border-radius: 12px; }
+
+.dark .maintenance-filters {
+  background: #1f2937;
+}
 .filter-btn { background: none; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 6px; font-size: 14px; color: #6b7280; cursor: pointer; transition: all 0.2s; }
 .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+.dark .filter-btn {
+  border-color: #4b5563;
+  color: #ffffff;
+}
+
+.dark .filter-btn:hover {
+  background: #374151;
+  color: #ffffff;
+}
 .maintenance-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
 .maintenance-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-left: 4px solid #d1d5db; }
+
+.dark .maintenance-card {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-left-color: #4b5563;
+}
 .maintenance-card.scheduled { border-left-color: #3b82f6; }
 .maintenance-card.in-progress { border-left-color: #f59e0b; }
 .maintenance-card.completed { border-left-color: #22c55e; }
 .maintenance-card.overdue { border-left-color: #ef4444; }
 .maintenance-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
 .maintenance-asset h3 { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+
+.dark .maintenance-asset h3 {
+  color: #ffffff;
+}
 .asset-type { font-size: 13px; color: #6b7280; }
+
+.dark .maintenance-asset h3 {
+  color: #ffffff;
+}
+
+.dark .asset-type {
+  color: #ffffff;
+}
 .maintenance-status { display: flex; align-items: center; gap: 8px; }
 .status-icon { flex-shrink: 0; }
 .status-text { font-size: 13px; font-weight: 500; text-transform: capitalize; }
@@ -31,8 +101,20 @@
 .status-text.overdue { color: #ef4444; }
 .maintenance-body { margin-bottom: 16px; }
 .maintenance-description { font-size: 14px; color: #111827; margin-bottom: 12px; line-height: 1.5; }
+
+.dark .maintenance-description {
+  color: #ffffff;
+}
+
+.dark .maintenance-description {
+  color: #ffffff;
+}
 .maintenance-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6b7280; }
+
+.dark .meta-item {
+  color: #ffffff;
+}
 .meta-label { font-weight: 500; }
 .maintenance-type { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; text-transform: capitalize; }
 .maintenance-type.preventive { background: #dbeafe; color: #1e40af; }
@@ -48,11 +130,45 @@
 .btn-primary.urgent:hover { background: #dc2626; }
 .maintenance-calendar-section { margin-bottom: 32px; }
 .calendar-placeholder { background: white; padding: 60px 40px; border-radius: 12px; text-align: center; border: 2px dashed #e5e7eb; }
+
+.dark .calendar-placeholder {
+  background: #1f2937;
+  border-color: #374151;
+}
 .calendar-icon { margin: 0 auto 20px; color: #d1d5db; }
 .calendar-placeholder h3 { font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 8px; }
+
+.dark .calendar-placeholder h3 {
+  color: #ffffff;
+}
 .calendar-placeholder p { font-size: 14px; color: #6b7280; margin-bottom: 16px; }
+
+.dark .calendar-placeholder h3 {
+  color: #ffffff;
+}
+
+.dark .calendar-placeholder p {
+  color: #ffffff;
+}
 .diagnostics-section { margin-bottom: 32px; }
 .diagnostics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
 .diagnostic-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
 .diagnostic-card h3 { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 8px; }
+
+.dark .diagnostic-card h3 {
+  color: #ffffff;
+}
 .diagnostic-card p { font-size: 13px; color: #6b7280; margin-bottom: 16px; }
+
+.dark .diagnostic-card {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .diagnostic-card h3 {
+  color: #ffffff;
+}
+
+.dark .diagnostic-card p {
+  color: #ffffff;
+}

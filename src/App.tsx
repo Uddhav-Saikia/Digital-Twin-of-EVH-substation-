@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { DarkModeProvider } from './contexts/DarkModeContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import AssetManagement from './pages/AssetManagement';
@@ -15,23 +16,25 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/assets" element={<AssetManagement />} />
-          <Route path="/assets/:type/:id" element={<AssetDetail />} />
-          <Route path="/monitoring" element={<Monitoring />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/visualization" element={<Visualization />} />
-          <Route path="/maintenance" element={<Maintenance />} />
-          <Route path="/simulation" element={<Simulation />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <DarkModeProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/assets" element={<AssetManagement />} />
+            <Route path="/assets/:type/:id" element={<AssetDetail />} />
+            <Route path="/monitoring" element={<Monitoring />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/visualization" element={<Visualization />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/simulation" element={<Simulation />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </Layout>
+      </Router>
+    </DarkModeProvider>
   );
 }
 

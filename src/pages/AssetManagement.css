@@ -1,12 +1,20 @@
 /* AssetManagement.css */
 .asset-management { max-width: 1400px; }
 
+.dark .asset-management {
+  background: #111827;
+}
+
 .asset-tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
   border-bottom: 2px solid #e5e7eb;
   overflow-x: auto;
+}
+
+.dark .asset-tabs {
+  border-bottom-color: #374151;
 }
 
 .tab {
@@ -32,6 +40,19 @@
   border-bottom-color: #3b82f6;
 }
 
+.dark .tab {
+  color: #ffffff;
+}
+
+.dark .tab:hover {
+  color: #60a5fa;
+}
+
+.dark .tab.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
 .asset-filters {
   display: flex;
   gap: 16px;
@@ -50,11 +71,25 @@
   border-radius: 8px;
 }
 
+.dark .search-box {
+  background: #1f2937;
+  border-color: #4b5563;
+}
+
 .search-box input {
   flex: 1;
   border: none;
   outline: none;
   font-size: 14px;
+}
+
+.dark .search-box input {
+  background: transparent;
+  color: #f9fafb;
+}
+
+.dark .search-box input::placeholder {
+  color: #ffffff;
 }
 
 .filter-group {
@@ -67,11 +102,21 @@
   border-radius: 8px;
 }
 
+.dark .filter-group {
+  background: #1f2937;
+  border-color: #4b5563;
+}
+
 .filter-group select {
   border: none;
   outline: none;
   font-size: 14px;
   cursor: pointer;
+}
+
+.dark .filter-group select {
+  background: transparent;
+  color: #f9fafb;
 }
 
 .asset-section {
@@ -83,6 +128,14 @@
   font-weight: 600;
   color: #111827;
   margin-bottom: 16px;
+}
+
+.dark .asset-section h2 {
+  color: #ffffff;
+}
+
+.dark .asset-section h2 {
+  color: #ffffff;
 }
 
 .asset-grid {
@@ -107,6 +160,16 @@
   border-color: #3b82f6;
 }
 
+.dark .asset-card {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .asset-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  border-color: #60a5fa;
+}
+
 .asset-card-header {
   display: flex;
   justify-content: space-between;
@@ -121,9 +184,21 @@
   margin-bottom: 4px;
 }
 
+.dark .asset-card h3 {
+  color: #ffffff;
+}
+
 .asset-id {
   font-size: 13px;
   color: #6b7280;
+}
+
+.dark .asset-card h3 {
+  color: #ffffff;
+}
+
+.dark .asset-id {
+  color: #ffffff;
 }
 
 .status-badge {
@@ -179,6 +254,18 @@
   font-weight: 500;
 }
 
+.dark .spec-value {
+  color: #ffffff;
+}
+
+.dark .spec-label {
+  color: #ffffff;
+}
+
+.dark .spec-value {
+  color: #ffffff;
+}
+
 .asset-health {
   margin-bottom: 12px;
 }
@@ -208,4 +295,8 @@
   font-size: 13px;
   color: #ef4444;
   font-weight: 500;
+}
+
+.dark .asset-alerts {
+  border-top-color: #374151;
 }

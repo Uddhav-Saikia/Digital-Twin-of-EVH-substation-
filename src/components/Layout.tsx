@@ -14,8 +14,10 @@ import {
   X,
   Bell,
   User,
-  ChevronRight
+  Sun,
+  Moon
 } from 'lucide-react';
+import { useDarkMode } from '../contexts/DarkModeContext';
 import './Layout.css';
 
 interface LayoutProps {
@@ -32,6 +34,7 @@ interface MenuItem {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const menuItems: MenuItem[] = [
     {
@@ -90,22 +93,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   ];
 
-  const getBreadcrumbs = () => {
-    const paths = location.pathname.split('/').filter(p => p);
-    const breadcrumbs = [{ label: 'Home', path: '/' }];
-    
-    let currentPath = '';
-    paths.forEach(path => {
-      currentPath += `/${path}`;
-      const menuItem = menuItems.find(item => item.path === currentPath);
-      breadcrumbs.push({
-        label: menuItem?.label || path.charAt(0).toUpperCase() + path.slice(1),
-        path: currentPath
-      });
-    });
-    
-    return breadcrumbs;
-  };
 
   return (
     <div className="layout-container">
@@ -122,6 +109,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         <div className="top-nav-right">
+          <button 
+            className="icon-button"
+            onClick={toggleDarkMode}
+            title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
           <button className="icon-button">
             <Bell size={20} />
             <span className="notification-badge">4</span>
@@ -157,21 +151,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Main Content Area */}
         <main className="main-content">
-          {/* Breadcrumbs */}
-          <div className="breadcrumbs">
-            {getBreadcrumbs().map((crumb, index) => (
-              <React.Fragment key={crumb.path}>
-                {index > 0 && <ChevronRight size={16} className="breadcrumb-separator" />}
-                <Link 
-                  to={crumb.path} 
-                  className={index === getBreadcrumbs().length - 1 ? 'active' : ''}
-                >
-                  {crumb.label}
-                </Link>
-              </React.Fragment>
-            ))}
-          </div>
-
           {/* Page Content */}
           <div className="page-content">
             {children}

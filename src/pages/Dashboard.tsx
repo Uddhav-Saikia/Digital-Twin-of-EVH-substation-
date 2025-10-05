@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { mockDashboardStats, mockSystemAlerts, mockTransformers, mockCircuitBreakers, generateSCADAData } from '../data/mockData';
+import MobileWarningPopup from '../components/MobileWarningPopup';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -37,6 +38,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
+      <MobileWarningPopup />
       <div className="dashboard-header">
         <h1>System Overview</h1>
         <p className="dashboard-subtitle">Real-time monitoring of EHV Substation operations</p>
