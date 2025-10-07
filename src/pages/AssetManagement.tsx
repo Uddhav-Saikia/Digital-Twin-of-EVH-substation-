@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Search, Filter, Download, Plus } from 'lucide-react';
 import { mockTransformers, mockCircuitBreakers, mockIsolators, mockCT_CVT, mockProtectionSystems } from '../data/mockData';
 import './AssetManagement.css';
@@ -7,9 +7,19 @@ import './AssetManagement.css';
 type AssetType = 'all' | 'transformers' | 'breakers' | 'isolators' | 'ct_cvt' | 'protection';
 
 const AssetManagement: React.FC = () => {
-  const [selectedType, setSelectedType] = useState<AssetType>('all');
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const filterParam = searchParams.get('filter') as AssetType;
+  
+  const [selectedType, setSelectedType] = useState<AssetType>(filterParam || 'all');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  useEffect(() => {
+    if (filterParam) {
+      setSelectedType(filterParam);
+    }
+  }, [filterParam]);
 
   const getStatusClass = (status: string, health: number) => {
     if (status === 'fault' || status === 'maintenance') return 'status-warning';

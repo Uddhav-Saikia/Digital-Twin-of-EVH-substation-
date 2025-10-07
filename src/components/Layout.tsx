@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Database,
@@ -15,7 +15,8 @@ import {
   Bell,
   User,
   Sun,
-  Moon
+  Moon,
+  LogOut
 } from 'lucide-react';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import './Layout.css';
@@ -34,7 +35,14 @@ interface MenuItem {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userEmail');
+    navigate('/');
+  };
 
   const menuItems: MenuItem[] = [
     {
@@ -116,13 +124,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <button className="icon-button">
+          <Link to="/notifications" className="icon-button">
             <Bell size={20} />
             <span className="notification-badge">4</span>
-          </button>
-          <button className="icon-button">
+          </Link>
+          <Link to="/profile" className="icon-button">
             <User size={20} />
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -146,6 +154,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 )}
               </Link>
             ))}
+            
+            {/* Logout Button */}
+            <button
+              className="nav-item logout-btn"
+              onClick={handleLogout}
+              title="Sign out"
+            >
+              <span className="nav-icon"><LogOut size={20} /></span>
+              {sidebarOpen && (
+                <div className="nav-content">
+                  <span className="nav-label">Logout</span>
+                  <span className="nav-description">Sign out of system</span>
+                </div>
+              )}
+            </button>
           </nav>
         </aside>
 

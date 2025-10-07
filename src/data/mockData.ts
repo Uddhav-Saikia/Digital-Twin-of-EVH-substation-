@@ -625,8 +625,98 @@ export const mockSystemAlerts: Alert[] = [
     message: 'Transformer T2 DGA analysis shows elevated hydrogen',
     timestamp: '2025-10-01T14:20:00Z',
     acknowledged: false
+  },
+  {
+    id: 'SYS-ALT-005',
+    severity: 'medium',
+    message: 'Isolator ISO-002 operation count nearing maintenance threshold',
+    timestamp: '2025-09-30T15:30:00Z',
+    acknowledged: true
+  },
+  {
+    id: 'SYS-ALT-006',
+    severity: 'low',
+    message: 'CT-005 secondary current reading slightly elevated',
+    timestamp: '2025-09-30T10:20:00Z',
+    acknowledged: true
+  },
+  {
+    id: 'SYS-ALT-007',
+    severity: 'high',
+    message: 'SF6 pressure in CB-001 trending downward',
+    timestamp: '2025-09-29T18:45:00Z',
+    acknowledged: false
+  },
+  {
+    id: 'SYS-ALT-008',
+    severity: 'critical',
+    message: 'Protection relay PROT-001 self-test failure',
+    timestamp: '2025-09-29T09:15:00Z',
+    acknowledged: false
+  },
+  {
+    id: 'SYS-ALT-009',
+    severity: 'medium',
+    message: 'Bus voltage fluctuation detected on 220kV bus',
+    timestamp: '2025-09-28T21:00:00Z',
+    acknowledged: true
+  },
+  {
+    id: 'SYS-ALT-010',
+    severity: 'low',
+    message: 'Routine inspection scheduled for Bay 3 equipment',
+    timestamp: '2025-09-28T08:00:00Z',
+    acknowledged: true
   }
 ];
+
+// User Profile Data
+export interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  fullName: string;
+  role: string;
+  department: string;
+  phone: string;
+  joinDate: string;
+  lastLogin: string;
+  avatar?: string;
+  permissions: string[];
+  preferences: {
+    notifications: boolean;
+    emailAlerts: boolean;
+    darkMode: boolean;
+    language: string;
+  };
+}
+
+export const mockUserProfile: UserProfile = {
+  id: 'USER-001',
+  username: 'admin',
+  email: 'admin@evhsubstation.com',
+  fullName: 'System Administrator',
+  role: 'Administrator',
+  department: 'Operations',
+  phone: '+91 98765 43210',
+  joinDate: '2023-01-15',
+  lastLogin: '2025-10-07T10:30:00Z',
+  permissions: [
+    'view_all_assets',
+    'modify_assets',
+    'manage_users',
+    'view_analytics',
+    'run_simulations',
+    'acknowledge_alerts',
+    'generate_reports'
+  ],
+  preferences: {
+    notifications: true,
+    emailAlerts: true,
+    darkMode: false,
+    language: 'en'
+  }
+};
 
 // Dashboard Statistics
 export const mockDashboardStats = {

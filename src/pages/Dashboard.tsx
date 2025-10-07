@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
       <div className="quick-access-section">
         <h2>Quick Access</h2>
         <div className="quick-access-grid">
-          <Link to="/assets" className="quick-access-card">
+          <Link to="/assets?filter=transformers" className="quick-access-card">
             <div className="qac-icon" style={{ background: '#3b82f620', color: '#3b82f6' }}>
               <Shield size={32} />
             </div>
@@ -186,7 +186,7 @@ const Dashboard: React.FC = () => {
             <p className="qac-status">{mockTransformers.filter(t => t.status === 'operational').length} operational</p>
           </Link>
 
-          <Link to="/assets" className="quick-access-card">
+          <Link to="/assets?filter=breakers" className="quick-access-card">
             <div className="qac-icon" style={{ background: '#22c55e20', color: '#22c55e' }}>
               <Zap size={32} />
             </div>

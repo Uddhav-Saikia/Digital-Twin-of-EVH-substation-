@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import Layout from './components/Layout';
+import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import AssetManagement from './pages/AssetManagement';
 import AssetDetail from './pages/AssetDetail';
@@ -12,27 +13,49 @@ import Maintenance from './pages/Maintenance';
 import Simulation from './pages/Simulation';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Notifications from './pages/Notifications';
+import Profile from './pages/Profile';
 import './App.css';
+
+// Simple authentication check
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" />;
+};
 
 function App() {
   return (
     <DarkModeProvider>
       <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/assets" element={<AssetManagement />} />
-            <Route path="/assets/:type/:id" element={<AssetDetail />} />
-            <Route path="/monitoring" element={<Monitoring />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/visualization" element={<Visualization />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/simulation" element={<Simulation />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          {/* Public Home/Landing Page */}
+          <Route path="/" element={<Home />} />
+          
+          {/* Protected Routes with Layout */}
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Routes>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/assets" element={<AssetManagement />} />
+                    <Route path="/assets/:type/:id" element={<AssetDetail />} />
+                    <Route path="/monitoring" element={<Monitoring />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/visualization" element={<Visualization />} />
+                    <Route path="/maintenance" element={<Maintenance />} />
+                    <Route path="/simulation" element={<Simulation />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/notifications" element={<Notifications />} />
+                    <Route path="/profile" element={<Profile />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </Router>
     </DarkModeProvider>
   );
