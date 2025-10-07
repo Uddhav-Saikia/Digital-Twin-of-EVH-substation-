@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Activity,
@@ -16,8 +16,17 @@ import MobileWarningPopup from '../components/MobileWarningPopup';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
+  const [alerts, setAlerts] = useState(mockSystemAlerts);
   const scadaData = generateSCADAData(6); // Last 6 hours
   const recentData = scadaData.slice(-20); // Last 20 readings
+
+  const handleAcknowledge = (alertId: string) => {
+    setAlerts(prevAlerts =>
+      prevAlerts.map(alert =>
+        alert.id === alertId ? { ...alert, acknowledged: true } : alert
+      )
+    );
+  };
 
   // Asset health distribution
   const healthDistribution = [
@@ -34,7 +43,7 @@ const Dashboard: React.FC = () => {
     reactive: Math.round(d.reactivePower)
   }));
 
-  const criticalAlerts = mockSystemAlerts.filter(a => !a.acknowledged && (a.severity === 'critical' || a.severity === 'high'));
+  const criticalAlerts = alerts.filter(a => !a.acknowledged && (a.severity === 'critical' || a.severity === 'high'));
 
   return (
     <div className="dashboard">
@@ -222,8 +231,8 @@ const Dashboard: React.FC = () => {
           <Link to="/monitoring" className="view-all-link">View All</Link>
         </div>
         <div className="alerts-list">
-          {mockSystemAlerts.slice(0, 5).map(alert => (
-            <div key={alert.id} className={`alert-item ${alert.severity} ${alert.acknowledged ? 'acknowledged' : ''}`}>
+          {alerts.filter(a => !a.acknowledged).slice(0, 5).map(alert => (
+            <div key={alert.id} className={`alert-item ${alert.severity}`}>
               <div className="alert-icon">
                 <AlertTriangle size={20} />
               </div>
@@ -234,11 +243,20 @@ const Dashboard: React.FC = () => {
                   <span className={`alert-severity ${alert.severity}`}>{alert.severity.toUpperCase()}</span>
                 </div>
               </div>
-              {!alert.acknowledged && (
-                <button className="alert-ack-btn">Acknowledge</button>
-              )}
+              <button 
+                className="alert-ack-btn"
+                onClick={() => handleAcknowledge(alert.id)}
+              >
+                Acknowledge
+              </button>
             </div>
           ))}
+          {alerts.filter(a => !a.acknowledged).length === 0 && (
+            <div className="no-alerts">
+              <CheckCircle size={48} style={{ color: '#10b981', opacity: 0.5 }} />
+              <p>All alerts have been acknowledged</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

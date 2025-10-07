@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import Layout from './components/Layout';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import AssetManagement from './pages/AssetManagement';
@@ -27,6 +28,7 @@ function App() {
   return (
     <DarkModeProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* Public Home/Landing Page */}
           <Route path="/" element={<Home />} />

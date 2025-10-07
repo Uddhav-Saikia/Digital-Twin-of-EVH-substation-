@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Filter, Download, Plus } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { mockTransformers, mockCircuitBreakers, mockIsolators, mockCT_CVT, mockProtectionSystems } from '../data/mockData';
 import './AssetManagement.css';
 
@@ -42,16 +42,6 @@ const AssetManagement: React.FC = () => {
         <div>
           <h1>Asset Management</h1>
           <p className="page-subtitle">Manage and monitor all substation equipment</p>
-        </div>
-        <div className="header-actions">
-          <button className="btn-secondary">
-            <Download size={18} />
-            Export
-          </button>
-          <button className="btn-primary">
-            <Plus size={18} />
-            Add Asset
-          </button>
         </div>
       </div>
 
