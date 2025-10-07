@@ -160,7 +160,7 @@ export const mockTransformers: Transformer[] = [
     oilLevel: 98.2,
     loadPercentage: 73.4,
     vibrationLevel: 2.3,
-    moistureContent: 12.5,
+    moistureContent: 12.5, // ppm (parts per million)
     lastMaintenance: '2024-08-10',
     nextMaintenance: '2025-02-10',
     alerts: [
@@ -187,7 +187,7 @@ export const mockTransformers: Transformer[] = [
     oilLevel: 96.5,
     loadPercentage: 65.2,
     vibrationLevel: 3.1,
-    moistureContent: 15.2,
+    moistureContent: 15.2, // ppm
     lastMaintenance: '2024-09-05',
     nextMaintenance: '2025-03-05',
     alerts: []
@@ -206,7 +206,7 @@ export const mockTransformers: Transformer[] = [
     oilLevel: 99.1,
     loadPercentage: 45.8,
     vibrationLevel: 1.8,
-    moistureContent: 8.4,
+    moistureContent: 8.4, // ppm
     lastMaintenance: '2024-07-22',
     nextMaintenance: '2025-01-22',
     alerts: []
@@ -455,8 +455,8 @@ export const generateSCADAData = (hours: number = 24): SCADAData[] => {
       current_l3: 2820 + Math.sin(i / 85) * 390 + Math.random() * 50,
       activePower: 1950 + Math.sin(i / 100) * 250 + Math.random() * 30,
       reactivePower: 420 + Math.cos(i / 110) * 80 + Math.random() * 15,
-      frequency: 50.0 + (Math.random() - 0.5) * 0.1,
-      powerFactor: 0.92 + Math.sin(i / 150) * 0.05
+      frequency: 50.0 + (Math.random() - 0.5) * 0.1, // Hz, nominal 50Hz ±0.05Hz
+      powerFactor: Math.max(0.88, Math.min(0.98, 0.93 + Math.sin(i / 150) * 0.04)) // Clamped between 0.88-0.98
     });
   }
   

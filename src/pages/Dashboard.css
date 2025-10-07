@@ -436,3 +436,22 @@
   background: #f9fafb;
   border-color: #9ca3af;
 }
+
+.no-alerts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.no-alerts p {
+  margin-top: 16px;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.dark .no-alerts p {
+  color: #9ca3af;
+}
