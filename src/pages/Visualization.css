@@ -21,8 +21,22 @@
   background: #3b82f6;
   color: white;
 }
-.visualization-workspace { display: flex; gap: 20px; margin-top: 24px; }
-.control-panel { width: 280px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); height: fit-content; }
+.visualization-workspace { 
+  display: flex; 
+  gap: 20px; 
+  margin-top: 24px; 
+  height: calc(100vh - 200px);
+  min-height: 600px;
+}
+.control-panel { 
+  width: 280px; 
+  background: white; 
+  padding: 20px; 
+  border-radius: 12px; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+  height: 100%;
+  overflow-y: auto;
+}
 
 .dark .control-panel {
   background: #1f2937;
@@ -76,7 +90,16 @@
 .legend-dot.maintenance { background: #f59e0b; }
 .legend-dot.fault { background: #ef4444; }
 .legend-dot.offline { background: #6b7280; }
-.visualization-canvas { flex: 1; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow: hidden; position: relative; }
+.visualization-canvas { 
+  flex: 1; 
+  background: white; 
+  border-radius: 12px; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+  overflow: hidden; 
+  position: relative; 
+  height: 100%;
+  display: block;
+}
 
 .dark .visualization-canvas {
   background: #1f2937;
@@ -166,4 +189,124 @@
 
 .dark .asset-info-panel h3 {
   color: #ffffff;
+}
+
+/* 3D Scene Wrapper */
+.substation-3d-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.3d-overlay-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.overlay-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  max-width: 300px;
+  pointer-events: auto;
+}
+
+.dark .overlay-card {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(96, 165, 250, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.overlay-card h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.dark .overlay-card h4 {
+  color: #ffffff;
+}
+
+.overlay-card p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.dark .overlay-card p {
+  color: #94a3b8;
+}
+
+.overlay-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dark .instruction-item {
+  color: #9ca3af;
+}
+
+.instruction-item svg {
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* Canvas 3D specific styles */
+.canvas-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.dark .canvas-3d {
+  background: linear-gradient(135deg, #000000 0%, #111827 100%);
+}
+
+/* Zoom Info Styles */
+.zoom-info {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.dark .zoom-info {
+  background: #1e293b;
+  border-color: #374151;
+  color: #94a3b8;
 }

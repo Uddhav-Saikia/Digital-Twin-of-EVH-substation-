@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Box, Maximize, ZoomIn, ZoomOut, RotateCw, Layers, Eye } from 'lucide-react';
+import { Box, Maximize, ZoomIn, ZoomOut, RotateCw, Layers, Eye, MapPin, Info } from 'lucide-react';
+import Substation3DScene from '../components/Substation3DScene';
 import './Visualization.css';
 
 const Visualization: React.FC = () => {
   const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
   const [selectedLayer, setSelectedLayer] = useState<string[]>(['transformers', 'breakers', 'busbars']);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [svgScale, setSvgScale] = useState(1);
 
   const layers = [
     { id: 'transformers', name: 'Transformers', color: '#3b82f6' },
@@ -22,6 +26,53 @@ const Visualization: React.FC = () => {
         : [...prev, layerId]
     );
   };
+
+  // View control functions
+  const handleZoomIn = () => {
+    if (viewMode === '2d') {
+      setSvgScale(prev => Math.min(prev * 1.2, 3));
+    } else {
+      setZoomLevel(prev => Math.min(prev * 1.2, 3));
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (viewMode === '2d') {
+      setSvgScale(prev => Math.max(prev / 1.2, 0.3));
+    } else {
+      setZoomLevel(prev => Math.max(prev / 1.2, 0.3));
+    }
+  };
+
+  const handleResetView = () => {
+    if (viewMode === '2d') {
+      setSvgScale(1);
+    } else {
+      setZoomLevel(1);
+      // Reset 3D camera to default position
+      // This will be handled by the 3D scene component
+    }
+  };
+
+  const handleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Handle fullscreen change events
+  React.useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   return (
     <div className="visualization">
@@ -75,22 +126,25 @@ const Visualization: React.FC = () => {
           <div className="control-section">
             <h3>View Controls</h3>
             <div className="control-buttons">
-              <button className="control-btn">
+              <button className="control-btn" onClick={handleZoomIn}>
                 <ZoomIn size={18} />
                 Zoom In
               </button>
-              <button className="control-btn">
+              <button className="control-btn" onClick={handleZoomOut}>
                 <ZoomOut size={18} />
                 Zoom Out
               </button>
-              <button className="control-btn">
+              <button className="control-btn" onClick={handleResetView}>
                 <RotateCw size={18} />
                 Reset View
               </button>
-              <button className="control-btn">
+              <button className="control-btn" onClick={handleFullscreen}>
                 <Maximize size={18} />
-                Fullscreen
+                {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
               </button>
+            </div>
+            <div className="zoom-info">
+              <span>Zoom: {Math.round((viewMode === '2d' ? svgScale : zoomLevel) * 100)}%</span>
             </div>
           </div>
 
@@ -122,7 +176,14 @@ const Visualization: React.FC = () => {
           {viewMode === '2d' ? (
             <div className="canvas-2d">
               {/* SVG-based 2D schematic diagram */}
-              <svg viewBox="0 0 1200 800" className="schematic-svg">
+              <svg 
+                viewBox="0 0 1200 800" 
+                className="schematic-svg"
+                style={{ 
+                  transform: `scale(${svgScale})`,
+                  transformOrigin: 'center center'
+                }}
+              >
                 {/* 400kV Bus */}
                 <line x1="100" y1="200" x2="1100" y2="200" stroke="#ef4444" strokeWidth="8" />
                 <text x="50" y="195" fill="#6b7280" fontSize="14">400kV Bus</text>
@@ -227,35 +288,11 @@ const Visualization: React.FC = () => {
             </div>
           ) : (
             <div className="canvas-3d">
-              {/* 3D Viewer Placeholder */}
-              <div className="placeholder-3d">
-                <Box size={80} className="placeholder-icon" />
-                <h3>3D Visualization Engine</h3>
-                <p>Interactive 3D model of the substation with real-time asset status</p>
-                <div className="tech-requirements">
-                  <h4>Implementation Requirements:</h4>
-                  <ul>
-                    <li><strong>3D Engine:</strong> Three.js or Babylon.js for WebGL rendering</li>
-                    <li><strong>3D Models:</strong> CAD models (STEP/IGES) converted to glTF/GLB format</li>
-                    <li><strong>Asset Positioning:</strong> GPS coordinates and spatial data integration</li>
-                    <li><strong>Real-time Updates:</strong> WebSocket connection for live status updates</li>
-                    <li><strong>Interaction:</strong> Click handlers for asset selection and info display</li>
-                    <li><strong>Camera Controls:</strong> Orbit controls, pan, zoom, and preset views</li>
-                    <li><strong>Performance:</strong> LOD (Level of Detail) for large-scale substations</li>
-                  </ul>
-                </div>
-                <div className="tech-features">
-                  <h4>Potential Features:</h4>
-                  <ul>
-                    <li>Color-coded assets based on health status</li>
-                    <li>Animated power flow visualization</li>
-                    <li>Heat map overlay for temperature distribution</li>
-                    <li>Measurement tools (distance, area)</li>
-                    <li>Virtual walkthrough mode</li>
-                    <li>Time-lapse replay of operational events</li>
-                    <li>AR/VR compatibility for on-site inspections</li>
-                  </ul>
-                </div>
+              <div className="substation-3d-wrapper">
+                <Substation3DScene 
+                  zoomLevel={zoomLevel}
+                  onResetView={handleResetView}
+                />
               </div>
             </div>
           )}
@@ -270,32 +307,7 @@ const Visualization: React.FC = () => {
         </div>
       </div>
 
-      {/* Additional Placeholders */}
-      <div className="placeholder-section">
-        <h3>🎨 Advanced Visualization Features</h3>
-        <div className="placeholder-grid">
-          <div className="placeholder-card">
-            <h4>Digital Twin Synchronization</h4>
-            <p>Real-time sync between physical substation and digital model with bidirectional data flow</p>
-            <span className="tech-note">Requires: IoT integration, state management, conflict resolution</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>VR/AR Integration</h4>
-            <p>Immersive training and remote inspection using VR headsets or AR mobile apps</p>
-            <span className="tech-note">Requires: Unity/Unreal Engine, VR SDK, spatial anchors</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Photogrammetry Integration</h4>
-            <p>Use drone imagery to create accurate 3D reconstruction of actual substation</p>
-            <span className="tech-note">Requires: Photogrammetry software, drone data, point cloud processing</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>BIM Integration</h4>
-            <p>Import Building Information Model (BIM) data from Revit or AutoCAD</p>
-            <span className="tech-note">Requires: BIM parsers, IFC format support, coordinate transformation</span>
-          </div>
-        </div>
-      </div>
+      
     </div>
   );
 };
