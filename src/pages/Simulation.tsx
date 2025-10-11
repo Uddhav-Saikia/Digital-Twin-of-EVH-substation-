@@ -1,19 +1,140 @@
 import React, { useState } from 'react';
-import { Play, Copy, Trash2, Settings, AlertTriangle } from 'lucide-react';
+import { Play, Copy, Trash2, Settings, AlertTriangle, X } from 'lucide-react';
 import { mockSimulationScenarios } from '../data/mockData';
 import './Simulation.css';
+
+interface SimulationScenario {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  parameters: Record<string, any>;
+  lastRun?: string;
+  results?: any;
+}
 
 const Simulation: React.FC = () => {
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [runningScenarioId, setRunningScenarioId] = useState<string | null>(null);
+  const [simulationProgress, setSimulationProgress] = useState(0);
+  const [simulationResults, setSimulationResults] = useState<any>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [scenarios, setScenarios] = useState<SimulationScenario[]>(mockSimulationScenarios);
+  const [formData, setFormData] = useState({
+    name: '',
+    type: '',
+    description: '',
+    targetAsset: '',
+    parameters: ''
+  });
 
   const runSimulation = (scenarioId: string) => {
     setIsRunning(true);
+    setRunningScenarioId(scenarioId);
+    setSimulationProgress(0);
+    setSimulationResults(null);
+    
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setSimulationProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 300);
+    
     // Simulate running for 3 seconds
     setTimeout(() => {
       setIsRunning(false);
-      alert(`Simulation ${scenarioId} completed successfully!`);
+      setRunningScenarioId(null);
+      setSimulationProgress(100);
+      
+      // Mock simulation results
+      const scenario = mockSimulationScenarios.find(s => s.id === scenarioId);
+      const mockResults = {
+        status: 'completed',
+        executionTime: '3.2s',
+        faultCurrent: `${(Math.random() * 50 + 20).toFixed(1)} kA`,
+        clearingTime: `${(Math.random() * 100 + 50).toFixed(0)} ms`,
+        protectionOperated: ['PROT-001', 'PROT-002'],
+        breakersOperated: ['CB-001'],
+        voltageProfile: 'Normal',
+        stabilityMargin: `${(Math.random() * 20 + 15).toFixed(1)}%`
+      };
+      
+      setSimulationResults(mockResults);
+      alert(`Simulation ${scenarioId} completed successfully!\nExecution Time: ${mockResults.executionTime}`);
     }, 3000);
+  };
+
+  const handleCreateScenario = () => {
+    setShowCreateModal(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false);
+  };
+
+  const handleSubmitScenario = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      // Parse JSON parameters
+      const parsedParams = formData.parameters ? JSON.parse(formData.parameters) : {};
+      
+      // Create new scenario
+      const newScenario: SimulationScenario = {
+        id: `SIM-${Date.now()}`,
+        name: formData.name,
+        type: formData.type,
+        description: formData.description,
+        parameters: {
+          targetAsset: formData.targetAsset,
+          ...parsedParams
+        }
+      };
+      
+      // Add to scenarios list
+      setScenarios([newScenario, ...scenarios]);
+      
+      // Reset form
+      setFormData({
+        name: '',
+        type: '',
+        description: '',
+        targetAsset: '',
+        parameters: ''
+      });
+      
+      alert('Scenario created successfully!');
+      setShowCreateModal(false);
+    } catch (error) {
+      alert('Invalid JSON format in parameters field. Please check and try again.');
+    }
+  };
+
+  const handleCloseResults = () => {
+    setSimulationResults(null);
+  };
+
+  const handleDeleteScenario = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this scenario?')) {
+      setScenarios(scenarios.filter(s => s.id !== id));
+    }
+  };
+
+  const handleDuplicateScenario = (scenario: SimulationScenario) => {
+    const duplicatedScenario: SimulationScenario = {
+      ...scenario,
+      id: `SIM-${Date.now()}`,
+      name: `${scenario.name} (Copy)`,
+      lastRun: undefined,
+      results: undefined
+    };
+    setScenarios([duplicatedScenario, ...scenarios]);
   };
 
   return (
@@ -24,7 +145,7 @@ const Simulation: React.FC = () => {
           <p className="page-subtitle">Test fault scenarios, switching operations, and training simulations</p>
         </div>
         <div className="header-actions">
-          <button className="btn-primary">
+          <button className="btn-primary" onClick={handleCreateScenario}>
             <Play size={18} />
             Create New Scenario
           </button>
@@ -94,7 +215,7 @@ const Simulation: React.FC = () => {
       <div className="scenarios-section">
         <h2>Saved Scenarios</h2>
         <div className="scenarios-grid">
-          {mockSimulationScenarios.map(scenario => (
+          {scenarios.map(scenario => (
             <div 
               key={scenario.id} 
               className={`scenario-card ${selectedScenario === scenario.id ? 'selected' : ''}`}
@@ -149,12 +270,28 @@ const Simulation: React.FC = () => {
                   disabled={isRunning}
                 >
                   <Play size={16} />
-                  {isRunning ? 'Running...' : 'Run'}
+                  {runningScenarioId === scenario.id ? `Running... ${simulationProgress}%` : 'Run'}
                 </button>
-                <button className="btn-icon" title="Duplicate">
+                <button 
+                  className="btn-icon" 
+                  title="Duplicate" 
+                  disabled={isRunning}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDuplicateScenario(scenario);
+                  }}
+                >
                   <Copy size={16} />
                 </button>
-                <button className="btn-icon" title="Delete">
+                <button 
+                  className="btn-icon" 
+                  title="Delete" 
+                  disabled={isRunning}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteScenario(scenario.id);
+                  }}
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -162,6 +299,130 @@ const Simulation: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Progress Bar */}
+      {isRunning && (
+        <div className="simulation-progress">
+          <h3>Simulation Running...</h3>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${simulationProgress}%` }}></div>
+          </div>
+          <p>{simulationProgress}% Complete</p>
+        </div>
+      )}
+
+      {/* Results Display */}
+      {simulationResults && !isRunning && (
+        <div className="simulation-results">
+          <div className="results-header">
+            <h3>Simulation Results</h3>
+            <button className="btn-close-results" onClick={handleCloseResults} title="Close Results">
+              <X size={20} />
+            </button>
+          </div>
+          <div className="results-grid">
+            <div className="result-item">
+              <label>Status:</label>
+              <span className="success">{simulationResults.status}</span>
+            </div>
+            <div className="result-item">
+              <label>Execution Time:</label>
+              <span>{simulationResults.executionTime}</span>
+            </div>
+            <div className="result-item">
+              <label>Fault Current:</label>
+              <span>{simulationResults.faultCurrent}</span>
+            </div>
+            <div className="result-item">
+              <label>Clearing Time:</label>
+              <span>{simulationResults.clearingTime}</span>
+            </div>
+            <div className="result-item">
+              <label>Protection Operated:</label>
+              <span>{simulationResults.protectionOperated.join(', ')}</span>
+            </div>
+            <div className="result-item">
+              <label>Breakers Operated:</label>
+              <span>{simulationResults.breakersOperated.join(', ')}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Scenario Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Create New Simulation Scenario</h3>
+              <button className="modal-close" onClick={handleCloseCreateModal}>×</button>
+            </div>
+            <form onSubmit={handleSubmitScenario}>
+              <div className="form-group">
+                <label>Scenario Name</label>
+                <input 
+                  type="text" 
+                  placeholder="Enter scenario name..." 
+                  required 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label>Simulation Type</label>
+                <select 
+                  required
+                  value={formData.type}
+                  onChange={(e) => setFormData({...formData, type: e.target.value})}
+                >
+                  <option value="">Select Type</option>
+                  <option value="fault">Fault Simulation</option>
+                  <option value="load">Load Flow Analysis</option>
+                  <option value="switching">Switching Operations</option>
+                  <option value="protection">Protection Coordination</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  rows={3} 
+                  placeholder="Enter scenario description..." 
+                  required
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                ></textarea>
+              </div>
+              <div className="form-group">
+                <label>Target Asset</label>
+                <select 
+                  required
+                  value={formData.targetAsset}
+                  onChange={(e) => setFormData({...formData, targetAsset: e.target.value})}
+                >
+                  <option value="">Select Asset</option>
+                  <option value="TXF-001">TXF-001 - Main Power Transformer</option>
+                  <option value="CB-001">CB-001 - 400kV Bus Section Breaker</option>
+                  <option value="400kV-Bus">400kV Bus A</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Parameters (JSON)</label>
+                <textarea 
+                  rows={4} 
+                  placeholder='{"faultType": "L-G", "faultResistance": "5 Ohms", "duration": "100ms"}'
+                  required
+                  value={formData.parameters}
+                  onChange={(e) => setFormData({...formData, parameters: e.target.value})}
+                ></textarea>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={handleCloseCreateModal}>Cancel</button>
+                <button type="submit" className="btn-primary">Create Scenario</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Simulation Engine Info */}
       <div className="simulation-engine">

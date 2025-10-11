@@ -19,6 +19,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useDarkMode } from '../contexts/DarkModeContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import './Layout.css';
 
 interface LayoutProps {
@@ -37,6 +38,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { unreadCount } = useNotifications();
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
@@ -126,7 +128,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </button>
           <Link to="/notifications" className="icon-button">
             <Bell size={20} />
-            <span className="notification-badge">4</span>
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount}</span>
+            )}
           </Link>
           <Link to="/profile" className="icon-button">
             <User size={20} />

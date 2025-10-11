@@ -224,3 +224,192 @@
 .dark .lesson-item {
   color: #ffffff;
 }
+
+/* Simulation Progress Styles */
+.simulation-progress {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.dark .simulation-progress {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.simulation-progress h3 {
+  margin: 0 0 16px 0;
+  color: #111827;
+}
+
+.dark .simulation-progress h3 {
+  color: #ffffff;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.dark .progress-bar {
+  background: #374151;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.simulation-progress p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.dark .simulation-progress p {
+  color: #d1d5db;
+}
+
+/* Simulation Results Styles */
+.simulation-results {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .simulation-results {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.simulation-results h3 {
+  margin: 0 0 20px 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dark .simulation-results h3 {
+  color: #ffffff;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.results-header h3 {
+  margin: 0;
+}
+
+.btn-close-results {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-close-results:hover {
+  background: #dc2626;
+}
+
+.dark .btn-close-results {
+  background: #dc2626;
+}
+
+.dark .btn-close-results:hover {
+  background: #b91c1c;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.dark .result-item {
+  background: #374151;
+}
+
+.result-item label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.dark .result-item label {
+  color: #d1d5db;
+}
+
+.result-item span {
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .result-item span {
+  color: #ffffff;
+}
+
+.result-item span.success {
+  color: #22c55e;
+}
+
+/* Disabled button styles */
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary:disabled:hover,
+.btn-secondary:disabled:hover,
+.btn-icon:disabled:hover {
+  transform: none;
+}
+
+.scenario-actions button:disabled {
+  pointer-events: none;
+}
+
+.btn-icon.delete-btn {
+  color: #ef4444;
+}
+
+.btn-icon.delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.dark .btn-icon.delete-btn:hover {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+/* Modal styles are already added to Maintenance.css, we can use the same */

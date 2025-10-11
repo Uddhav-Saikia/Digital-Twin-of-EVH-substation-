@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { Bell, CheckCircle, AlertTriangle, Info, XCircle, Filter, Check, Trash2, Clock } from 'lucide-react';
-import { mockSystemAlerts } from '../data/mockData';
+import { useNotifications } from '../contexts/NotificationContext';
 import './Notifications.css';
 
-interface NotificationItem {
-  id: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  message: string;
-  timestamp: string;
-  acknowledged: boolean;
-}
-
 const Notifications: React.FC = () => {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(mockSystemAlerts);
+  const {
+    notifications,
+    unreadCount,
+    acknowledgeNotification,
+    acknowledgeAll,
+    deleteNotification,
+    clearRead
+  } = useNotifications();
+  
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -46,24 +46,6 @@ const Notifications: React.FC = () => {
     }
   };
 
-  const handleAcknowledge = (id: string) => {
-    setNotifications(notifications.map(notif =>
-      notif.id === id ? { ...notif, acknowledged: true } : notif
-    ));
-  };
-
-  const handleAcknowledgeAll = () => {
-    setNotifications(notifications.map(notif => ({ ...notif, acknowledged: true })));
-  };
-
-  const handleDelete = (id: string) => {
-    setNotifications(notifications.filter(notif => notif.id !== id));
-  };
-
-  const handleClearAll = () => {
-    setNotifications(notifications.filter(notif => !notif.acknowledged));
-  };
-
   const getTimeAgo = (timestamp: string) => {
     const now = new Date();
     const time = new Date(timestamp);
@@ -83,7 +65,6 @@ const Notifications: React.FC = () => {
     return severityMatch && statusMatch;
   });
 
-  const unreadCount = notifications.filter(n => !n.acknowledged).length;
   const criticalCount = notifications.filter(n => n.severity === 'critical' && !n.acknowledged).length;
 
   return (
@@ -94,11 +75,11 @@ const Notifications: React.FC = () => {
           <p className="page-subtitle">Manage system alerts and notifications</p>
         </div>
         <div className="header-actions">
-          <button className="btn-secondary" onClick={handleClearAll}>
+          <button className="btn-secondary" onClick={clearRead}>
             <Trash2 size={18} />
             Clear Read
           </button>
-          <button className="btn-primary" onClick={handleAcknowledgeAll}>
+          <button className="btn-primary" onClick={acknowledgeAll}>
             <CheckCircle size={18} />
             Mark All Read
           </button>
@@ -217,7 +198,7 @@ const Notifications: React.FC = () => {
                   {!notification.acknowledged ? (
                     <button
                       className="btn-ack"
-                      onClick={() => handleAcknowledge(notification.id)}
+                      onClick={() => acknowledgeNotification(notification.id)}
                       title="Mark as read"
                     >
                       <Check size={18} />
@@ -230,7 +211,7 @@ const Notifications: React.FC = () => {
                   )}
                   <button
                     className="btn-delete"
-                    onClick={() => handleDelete(notification.id)}
+                    onClick={() => deleteNotification(notification.id)}
                     title="Delete"
                   >
                     <Trash2 size={18} />

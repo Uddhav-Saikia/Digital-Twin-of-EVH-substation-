@@ -36,6 +36,31 @@ const AssetManagement: React.FC = () => {
     return '#ef4444';
   };
 
+  // Filter function for assets
+  const filterAssets = <T extends { name: string; id: string; status?: string; position?: string }>(
+    assets: T[]
+  ): T[] => {
+    return assets.filter(asset => {
+      // Search filter
+      const matchesSearch = searchTerm === '' || 
+        asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        asset.id.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Status filter
+      const assetStatus = 'status' in asset ? asset.status : 
+                          'position' in asset ? asset.position : 'operational';
+      const matchesStatus = statusFilter === 'all' || assetStatus === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  };
+
+  const filteredTransformers = filterAssets(mockTransformers);
+  const filteredCircuitBreakers = filterAssets(mockCircuitBreakers);
+  const filteredIsolators = filterAssets(mockIsolators);
+  const filteredCT_CVT = filterAssets(mockCT_CVT);
+  const filteredProtectionSystems = filterAssets(mockProtectionSystems);
+
   return (
     <div className="asset-management">
       <div className="page-header">
@@ -113,7 +138,8 @@ const AssetManagement: React.FC = () => {
         <div className="asset-section">
           <h2>Transformers</h2>
           <div className="asset-grid">
-            {mockTransformers.map(transformer => (
+            {filteredTransformers.length > 0 ? (
+              filteredTransformers.map(transformer => (
               <Link 
                 key={transformer.id} 
                 to={`/assets/transformer/${transformer.id}`}
@@ -172,7 +198,12 @@ const AssetManagement: React.FC = () => {
                   </div>
                 )}
               </Link>
-            ))}
+            ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                No transformers found matching your search criteria.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -182,7 +213,8 @@ const AssetManagement: React.FC = () => {
         <div className="asset-section">
           <h2>Circuit Breakers</h2>
           <div className="asset-grid">
-            {mockCircuitBreakers.map(breaker => (
+            {filteredCircuitBreakers.length > 0 ? (
+              filteredCircuitBreakers.map(breaker => (
               <Link 
                 key={breaker.id} 
                 to={`/assets/breaker/${breaker.id}`}
@@ -241,7 +273,12 @@ const AssetManagement: React.FC = () => {
                   </div>
                 )}
               </Link>
-            ))}
+            ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                No circuit breakers found matching your search criteria.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -251,7 +288,8 @@ const AssetManagement: React.FC = () => {
         <div className="asset-section">
           <h2>Isolators</h2>
           <div className="asset-grid">
-            {mockIsolators.map(isolator => (
+            {filteredIsolators.length > 0 ? (
+              filteredIsolators.map(isolator => (
               <Link 
                 key={isolator.id} 
                 to={`/assets/isolator/${isolator.id}`}
@@ -304,7 +342,12 @@ const AssetManagement: React.FC = () => {
                   </div>
                 </div>
               </Link>
-            ))}
+            ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                No isolators found matching your search criteria.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -314,7 +357,8 @@ const AssetManagement: React.FC = () => {
         <div className="asset-section">
           <h2>Current & Voltage Transformers</h2>
           <div className="asset-grid">
-            {mockCT_CVT.map(device => (
+            {filteredCT_CVT.length > 0 ? (
+              filteredCT_CVT.map(device => (
               <Link 
                 key={device.id} 
                 to={`/assets/ct_cvt/${device.id}`}
@@ -367,7 +411,12 @@ const AssetManagement: React.FC = () => {
                   </div>
                 </div>
               </Link>
-            ))}
+            ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                No CT/CVT devices found matching your search criteria.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -377,7 +426,8 @@ const AssetManagement: React.FC = () => {
         <div className="asset-section">
           <h2>Protection Systems</h2>
           <div className="asset-grid">
-            {mockProtectionSystems.map(protection => (
+            {filteredProtectionSystems.length > 0 ? (
+              filteredProtectionSystems.map(protection => (
               <Link 
                 key={protection.id} 
                 to={`/assets/protection/${protection.id}`}
@@ -436,7 +486,12 @@ const AssetManagement: React.FC = () => {
                   </div>
                 )}
               </Link>
-            ))}
+            ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                No protection systems found matching your search criteria.
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -5,12 +5,39 @@ import './Maintenance.css';
 
 type MaintenanceFilter = 'all' | 'scheduled' | 'in-progress' | 'completed' | 'overdue';
 
+interface MaintenanceRecord {
+  id: string;
+  assetId: string;
+  assetType: string;
+  description: string;
+  type: string;
+  priority: string;
+  status: MaintenanceFilter;
+  scheduledDate: string;
+  completedDate?: string;
+  technician?: string;
+}
+
 const Maintenance: React.FC = () => {
   const [filter, setFilter] = useState<MaintenanceFilter>('all');
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(mockMaintenanceRecords);
+  const [formData, setFormData] = useState({
+    assetId: '',
+    type: '',
+    priority: '',
+    scheduledDate: '',
+    description: ''
+  });
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   const filteredRecords = filter === 'all' 
-    ? mockMaintenanceRecords 
-    : mockMaintenanceRecords.filter(r => r.status === filter);
+    ? maintenanceRecords 
+    : maintenanceRecords.filter(r => r.status === filter);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -38,10 +65,131 @@ const Maintenance: React.FC = () => {
   };
 
   const stats = {
-    scheduled: mockMaintenanceRecords.filter(r => r.status === 'scheduled').length,
-    inProgress: mockMaintenanceRecords.filter(r => r.status === 'in-progress').length,
-    completed: mockMaintenanceRecords.filter(r => r.status === 'completed').length,
-    overdue: mockMaintenanceRecords.filter(r => r.status === 'overdue').length,
+    scheduled: maintenanceRecords.filter(r => r.status === 'scheduled').length,
+    inProgress: maintenanceRecords.filter(r => r.status === 'in-progress').length,
+    completed: maintenanceRecords.filter(r => r.status === 'completed').length,
+    overdue: maintenanceRecords.filter(r => r.status === 'overdue').length,
+  };
+
+  const handleScheduleMaintenance = () => {
+    setShowScheduleModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowScheduleModal(false);
+  };
+
+  const handleSubmitSchedule = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Get asset type from assetId
+    const assetMap: Record<string, string> = {
+      'TXF-001': 'Main Power Transformer',
+      'CB-001': '400kV Bus Section Breaker',
+      'CB-002': '220kV Line Breaker'
+    };
+    
+    // Create new maintenance record
+    const newRecord: MaintenanceRecord = {
+      id: `MNT-${Date.now()}`,
+      assetId: formData.assetId,
+      assetType: assetMap[formData.assetId] || 'Unknown Asset',
+      description: formData.description,
+      type: formData.type,
+      priority: formData.priority,
+      status: 'scheduled',
+      scheduledDate: formData.scheduledDate,
+      technician: 'Pending Assignment'
+    };
+    
+    // Add to records list
+    setMaintenanceRecords([newRecord, ...maintenanceRecords]);
+    
+    // Reset form
+    setFormData({
+      assetId: '',
+      type: '',
+      priority: '',
+      scheduledDate: '',
+      description: ''
+    });
+    
+    alert('Maintenance scheduled successfully!');
+    setShowScheduleModal(false);
+  };
+
+  const handlePreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  const generateCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const daysInMonth = lastDayOfMonth.getDate();
+    const startingDayOfWeek = firstDayOfMonth.getDay();
+    
+    const days = [];
+    
+    // Previous month days
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      days.push({
+        day: prevMonthLastDay - i,
+        isCurrentMonth: false,
+        hasEvent: false
+      });
+    }
+    
+    // Current month days
+    const maintenanceDates = [10, 15, 25]; // Sample maintenance dates
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push({
+        day,
+        isCurrentMonth: true,
+        hasEvent: maintenanceDates.includes(day)
+      });
+    }
+    
+    // Next month days to fill the grid
+    const remainingDays = 35 - days.length;
+    for (let day = 1; day <= remainingDays; day++) {
+      days.push({
+        day,
+        isCurrentMonth: false,
+        hasEvent: false
+      });
+    }
+    
+    return days;
+  };
+
+  const handleStartWork = (id: string) => {
+    setMaintenanceRecords(maintenanceRecords.map(record =>
+      record.id === id ? { ...record, status: 'in-progress' as MaintenanceFilter } : record
+    ));
+  };
+
+  const handleMarkComplete = (id: string) => {
+    setMaintenanceRecords(maintenanceRecords.map(record =>
+      record.id === id ? { 
+        ...record, 
+        status: 'completed' as MaintenanceFilter, 
+        completedDate: new Date().toISOString() 
+      } : record
+    ));
+  };
+
+  const handleDeleteRecord = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this maintenance record?')) {
+      setMaintenanceRecords(maintenanceRecords.filter(record => record.id !== id));
+    }
   };
 
   return (
@@ -52,7 +200,7 @@ const Maintenance: React.FC = () => {
           <p className="page-subtitle">Plan, schedule, and track maintenance activities</p>
         </div>
         <div className="header-actions">
-          <button className="btn-primary">Schedule New Maintenance</button>
+          <button className="btn-primary" onClick={handleScheduleMaintenance}>Schedule New Maintenance</button>
         </div>
       </div>
 
@@ -95,7 +243,7 @@ const Maintenance: React.FC = () => {
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
-          All ({mockMaintenanceRecords.length})
+          All ({maintenanceRecords.length})
         </button>
         <button 
           className={`filter-btn ${filter === 'scheduled' ? 'active' : ''}`}
@@ -180,14 +328,14 @@ const Maintenance: React.FC = () => {
             <div className="maintenance-actions">
               {record.status === 'scheduled' && (
                 <>
-                  <button className="btn-secondary">Reschedule</button>
-                  <button className="btn-primary">Start Work</button>
+                  <button className="btn-secondary" onClick={() => handleStartWork(record.id)}>Start Work</button>
+                  <button className="btn-secondary" onClick={() => handleDeleteRecord(record.id)}>Delete</button>
                 </>
               )}
               {record.status === 'in-progress' && (
                 <>
                   <button className="btn-secondary">Add Notes</button>
-                  <button className="btn-primary">Mark Complete</button>
+                  <button className="btn-primary" onClick={() => handleMarkComplete(record.id)}>Mark Complete</button>
                 </>
               )}
               {record.status === 'completed' && (
@@ -207,13 +355,47 @@ const Maintenance: React.FC = () => {
       {/* Calendar View */}
       <div className="maintenance-calendar-section">
         <h2>Maintenance Calendar</h2>
-        <div className="calendar-placeholder">
-          <Calendar size={64} className="calendar-icon" />
-          <h3>Calendar View Coming Soon</h3>
-          <p>Visualize maintenance schedule in monthly/weekly calendar format</p>
-          <div className="tech-note">
-            <strong>Implementation:</strong> Use React Calendar library (react-big-calendar) or FullCalendar
-            to display maintenance events with drag-and-drop rescheduling capability
+        <div className="calendar-container">
+          <div className="calendar-header">
+            <button className="btn-secondary" onClick={handlePreviousMonth}>Previous Month</button>
+            <h3>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h3>
+            <button className="btn-secondary" onClick={handleNextMonth}>Next Month</button>
+          </div>
+          <div className="calendar-grid">
+            <div className="calendar-weekdays">
+              <div className="weekday">Sun</div>
+              <div className="weekday">Mon</div>
+              <div className="weekday">Tue</div>
+              <div className="weekday">Wed</div>
+              <div className="weekday">Thu</div>
+              <div className="weekday">Fri</div>
+              <div className="weekday">Sat</div>
+            </div>
+            <div className="calendar-days">
+              {generateCalendarDays().map((dayInfo, index) => (
+                <div 
+                  key={index} 
+                  className={`calendar-day ${dayInfo.isCurrentMonth ? 'current-month' : 'other-month'} ${dayInfo.hasEvent ? 'has-event' : ''}`}
+                >
+                  <span className="day-number">{dayInfo.day}</span>
+                  {dayInfo.hasEvent && <div className="event-dot"></div>}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="calendar-legend">
+            <div className="legend-item">
+              <div className="legend-dot scheduled"></div>
+              <span>Scheduled Maintenance</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-dot in-progress"></div>
+              <span>In Progress</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-dot overdue"></div>
+              <span>Overdue</span>
+            </div>
           </div>
         </div>
       </div>
@@ -259,6 +441,83 @@ const Maintenance: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Schedule Maintenance Modal */}
+      {showScheduleModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Schedule New Maintenance</h3>
+              <button className="modal-close" onClick={handleCloseModal}>×</button>
+            </div>
+            <form onSubmit={handleSubmitSchedule}>
+              <div className="form-group">
+                <label>Asset ID</label>
+                <select 
+                  required 
+                  value={formData.assetId}
+                  onChange={(e) => setFormData({...formData, assetId: e.target.value})}
+                >
+                  <option value="">Select Asset</option>
+                  <option value="TXF-001">TXF-001 - Main Power Transformer</option>
+                  <option value="CB-001">CB-001 - 400kV Bus Section Breaker</option>
+                  <option value="CB-002">CB-002 - 220kV Line Breaker</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Maintenance Type</label>
+                <select 
+                  required
+                  value={formData.type}
+                  onChange={(e) => setFormData({...formData, type: e.target.value})}
+                >
+                  <option value="">Select Type</option>
+                  <option value="preventive">Preventive</option>
+                  <option value="corrective">Corrective</option>
+                  <option value="predictive">Predictive</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Priority</label>
+                <select 
+                  required
+                  value={formData.priority}
+                  onChange={(e) => setFormData({...formData, priority: e.target.value})}
+                >
+                  <option value="">Select Priority</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Scheduled Date</label>
+                <input 
+                  type="date" 
+                  required 
+                  value={formData.scheduledDate}
+                  onChange={(e) => setFormData({...formData, scheduledDate: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  rows={3} 
+                  placeholder="Enter maintenance description..." 
+                  required
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                ></textarea>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={handleCloseModal}>Cancel</button>
+                <button type="submit" className="btn-primary">Schedule Maintenance</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Work Order Management */}
       <div className="placeholder-section">

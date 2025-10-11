@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Activity,
   AlertTriangle,
@@ -11,30 +11,80 @@ import {
   Shield
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { mockDashboardStats, mockSystemAlerts, mockTransformers, mockCircuitBreakers, generateSCADAData } from '../data/mockData';
+import { mockSystemAlerts, mockTransformers, mockCircuitBreakers, mockIsolators, mockCT_CVT, mockProtectionSystems, generateSCADAData } from '../data/mockData';
+import { useNotifications } from '../contexts/NotificationContext';
 import MobileWarningPopup from '../components/MobileWarningPopup';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
-  const [alerts, setAlerts] = useState(mockSystemAlerts);
+  const navigate = useNavigate();
+  const { notifications } = useNotifications();
   const scadaData = generateSCADAData(6); // Last 6 hours
   const recentData = scadaData.slice(-20); // Last 20 readings
 
-  const handleAcknowledge = (alertId: string) => {
-    setAlerts(prevAlerts =>
-      prevAlerts.map(alert =>
-        alert.id === alertId ? { ...alert, acknowledged: true } : alert
-      )
-    );
-  };
-
-  // Asset health distribution
-  const healthDistribution = [
-    { name: 'Excellent (90-100%)', value: 18, color: '#22c55e' },
-    { name: 'Good (75-89%)', value: 15, color: '#3b82f6' },
-    { name: 'Fair (60-74%)', value: 9, color: '#f59e0b' },
-    { name: 'Poor (<60%)', value: 3, color: '#ef4444' }
+  // Calculate dynamic stats from actual data
+  const allAssets = [
+    ...mockTransformers,
+    ...mockCircuitBreakers,
+    ...mockIsolators,
+    ...mockCT_CVT,
+    ...mockProtectionSystems
   ];
+
+  const totalAssets = allAssets.length;
+  const operationalAssets = allAssets.filter(asset => {
+    if ('status' in asset) {
+      return asset.status === 'operational' || asset.status === 'closed';
+    }
+    return true;
+  }).length;
+
+  const totalHealth = allAssets.reduce((sum, asset) => sum + (asset.health || 0), 0);
+  const overallSystemHealth = (totalHealth / allAssets.length).toFixed(1);
+
+  const activeAlerts = notifications.filter(n => !n.acknowledged).length;
+  const criticalAlertsCount = notifications.filter(n => !n.acknowledged && (n.severity === 'critical' || n.severity === 'high')).length;
+
+  // Calculate asset health distribution from actual data
+  const healthDistribution = [
+    { 
+      name: 'Excellent (90-100%)', 
+      value: allAssets.filter(a => a.health >= 90).length, 
+      color: '#22c55e' 
+    },
+    { 
+      name: 'Good (75-89%)', 
+      value: allAssets.filter(a => a.health >= 75 && a.health < 90).length, 
+      color: '#3b82f6' 
+    },
+    { 
+      name: 'Fair (60-74%)', 
+      value: allAssets.filter(a => a.health >= 60 && a.health < 75).length, 
+      color: '#f59e0b' 
+    },
+    { 
+      name: 'Poor (<60%)', 
+      value: allAssets.filter(a => a.health < 60).length, 
+      color: '#ef4444' 
+    }
+  ];
+
+  // Calculate total power from transformers
+  const totalPower = mockTransformers.reduce((sum, t) => {
+    const capacity = parseFloat(t.capacity.replace(/[^0-9.]/g, ''));
+    const load = t.loadPercentage / 100;
+    return sum + (capacity * load);
+  }, 0).toFixed(0);
+
+  // Get average frequency from recent SCADA data
+  const avgFrequency = recentData.length > 0 
+    ? (recentData.reduce((sum, d) => sum + d.frequency, 0) / recentData.length).toFixed(2)
+    : '50.00';
+
+  // Get average temperature from transformers
+  const avgTemperature = mockTransformers.length > 0
+    ? Math.round(mockTransformers.reduce((sum, t) => sum + t.temperature, 0) / mockTransformers.length)
+    : 58;
 
   // Power consumption over time
   const powerData = recentData.map((d, i) => ({
@@ -42,8 +92,6 @@ const Dashboard: React.FC = () => {
     power: Math.round(d.activePower),
     reactive: Math.round(d.reactivePower)
   }));
-
-  const criticalAlerts = alerts.filter(a => !a.acknowledged && (a.severity === 'critical' || a.severity === 'high'));
 
   return (
     <div className="dashboard">
@@ -55,84 +103,84 @@ const Dashboard: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="kpi-grid">
-        <div className="kpi-card">
+        <Link to="/assets" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="kpi-icon" style={{ background: '#22c55e20' }}>
             <CheckCircle size={24} style={{ color: '#22c55e' }} />
           </div>
           <div className="kpi-content">
             <div className="kpi-label">System Health</div>
-            <div className="kpi-value">{mockDashboardStats.overallSystemHealth}%</div>
+            <div className="kpi-value">{overallSystemHealth}%</div>
             <div className="kpi-trend positive">
               <TrendingUp size={16} />
               <span>2.3% from last week</span>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="kpi-card">
+        <Link to="/assets" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="kpi-icon" style={{ background: '#3b82f620' }}>
             <Activity size={24} style={{ color: '#3b82f6' }} />
           </div>
           <div className="kpi-content">
             <div className="kpi-label">Operational Assets</div>
-            <div className="kpi-value">{mockDashboardStats.operationalAssets}/{mockDashboardStats.totalAssets}</div>
+            <div className="kpi-value">{operationalAssets}/{totalAssets}</div>
             <div className="kpi-trend neutral">
-              <span>93.3% uptime</span>
+              <span>{((operationalAssets / totalAssets) * 100).toFixed(1)}% uptime</span>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="kpi-card">
-          <div className="kpi-icon" style={{ background: criticalAlerts.length > 0 ? '#ef444420' : '#f59e0b20' }}>
-            <AlertTriangle size={24} style={{ color: criticalAlerts.length > 0 ? '#ef4444' : '#f59e0b' }} />
+        <Link to="/notifications" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="kpi-icon" style={{ background: criticalAlertsCount > 0 ? '#ef444420' : '#f59e0b20' }}>
+            <AlertTriangle size={24} style={{ color: criticalAlertsCount > 0 ? '#ef4444' : '#f59e0b' }} />
           </div>
           <div className="kpi-content">
             <div className="kpi-label">Active Alerts</div>
-            <div className="kpi-value">{mockDashboardStats.activeAlerts}</div>
+            <div className="kpi-value">{activeAlerts}</div>
             <div className="kpi-trend negative">
-              <span>{criticalAlerts.length} critical/high</span>
+              <span>{criticalAlertsCount} critical/high</span>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="kpi-card">
+        <Link to="/monitoring" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="kpi-icon" style={{ background: '#8b5cf620' }}>
             <Zap size={24} style={{ color: '#8b5cf6' }} />
           </div>
           <div className="kpi-content">
             <div className="kpi-label">Total Power</div>
-            <div className="kpi-value">{mockDashboardStats.totalPower} MW</div>
+            <div className="kpi-value">{totalPower} MW</div>
             <div className="kpi-trend neutral">
               <span>73.4% of capacity</span>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="kpi-card">
+        <Link to="/monitoring" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="kpi-icon" style={{ background: '#06b6d420' }}>
             <Gauge size={24} style={{ color: '#06b6d4' }} />
           </div>
           <div className="kpi-content">
             <div className="kpi-label">Frequency</div>
-            <div className="kpi-value">{mockDashboardStats.systemFrequency} Hz</div>
+            <div className="kpi-value">{avgFrequency} Hz</div>
             <div className="kpi-trend positive">
               <span>Stable</span>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="kpi-card">
+        <Link to="/assets?filter=transformers" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="kpi-icon" style={{ background: '#ec489920' }}>
             <ThermometerSun size={24} style={{ color: '#ec4899' }} />
           </div>
           <div className="kpi-content">
             <div className="kpi-label">Avg Temperature</div>
-            <div className="kpi-value">58°C</div>
+            <div className="kpi-value">{avgTemperature}°C</div>
             <div className="kpi-trend neutral">
               <span>Within limits</span>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Charts Row */}
@@ -228,30 +276,30 @@ const Dashboard: React.FC = () => {
       <div className="alerts-section">
         <div className="alerts-header">
           <h2>Recent Alerts</h2>
-          <Link to="/monitoring" className="view-all-link">View All</Link>
+          <Link to="/notifications" className="view-all-link">View All</Link>
         </div>
         <div className="alerts-list">
-          {alerts.filter(a => !a.acknowledged).slice(0, 5).map(alert => (
-            <div key={alert.id} className={`alert-item ${alert.severity}`}>
+          {notifications.filter(n => !n.acknowledged).slice(0, 5).map(notification => (
+            <div key={notification.id} className={`alert-item ${notification.severity}`}>
               <div className="alert-icon">
                 <AlertTriangle size={20} />
               </div>
               <div className="alert-content">
-                <div className="alert-message">{alert.message}</div>
+                <div className="alert-message">{notification.message}</div>
                 <div className="alert-meta">
-                  <span className="alert-time">{new Date(alert.timestamp).toLocaleString()}</span>
-                  <span className={`alert-severity ${alert.severity}`}>{alert.severity.toUpperCase()}</span>
+                  <span className="alert-time">{new Date(notification.timestamp).toLocaleString()}</span>
+                  <span className={`alert-severity ${notification.severity}`}>{notification.severity.toUpperCase()}</span>
                 </div>
               </div>
-              <button 
+              <Link 
+                to="/notifications"
                 className="alert-ack-btn"
-                onClick={() => handleAcknowledge(alert.id)}
               >
-                Acknowledge
-              </button>
+                View
+              </Link>
             </div>
           ))}
-          {alerts.filter(a => !a.acknowledged).length === 0 && (
+          {notifications.filter(n => !n.acknowledged).length === 0 && (
             <div className="no-alerts">
               <CheckCircle size={48} style={{ color: '#10b981', opacity: 0.5 }} />
               <p>All alerts have been acknowledged</p>
