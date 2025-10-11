@@ -55,9 +55,12 @@ const Visualization: React.FC = () => {
   };
 
   const handleFullscreen = () => {
+    const canvas3d = document.querySelector('.canvas-3d') as HTMLElement;
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
+      if (canvas3d) {
+        canvas3d.requestFullscreen();
+        setIsFullscreen(true);
+      }
     } else {
       document.exitFullscreen();
       setIsFullscreen(false);
@@ -148,27 +151,6 @@ const Visualization: React.FC = () => {
             </div>
           </div>
 
-          <div className="control-section">
-            <h3>Asset Status Legend</h3>
-            <div className="legend-list">
-              <div className="legend-item">
-                <span className="legend-dot operational"></span>
-                <span>Operational</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-dot maintenance"></span>
-                <span>Maintenance</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-dot fault"></span>
-                <span>Fault</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-dot offline"></span>
-                <span>Offline</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Visualization Canvas */}
@@ -293,6 +275,14 @@ const Visualization: React.FC = () => {
                   zoomLevel={zoomLevel}
                   onResetView={handleResetView}
                 />
+                {/* Fullscreen button for 3D view */}
+                <button 
+                  className="fullscreen-3d-btn"
+                  onClick={handleFullscreen}
+                  title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                >
+                  <Maximize size={20} />
+                </button>
               </div>
             </div>
           )}
