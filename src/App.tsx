@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { DarkModeProvider } from './contexts/DarkModeContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import Layout from './components/Layout';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
@@ -27,9 +28,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 function App() {
   return (
     <DarkModeProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
+      <NotificationProvider>
+        <Router>
+          <ScrollToTop />
+          <Routes>
           {/* Public Home/Landing Page */}
           <Route path="/" element={<Home />} />
           
@@ -59,6 +61,7 @@ function App() {
           />
         </Routes>
       </Router>
+      </NotificationProvider>
     </DarkModeProvider>
   );
 }

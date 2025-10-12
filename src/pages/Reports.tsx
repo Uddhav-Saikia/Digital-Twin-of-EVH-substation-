@@ -4,6 +4,7 @@ import './Reports.css';
 
 const Reports: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+  const [isGenerating, setIsGenerating] = useState<string | null>(null);
 
   const reportTypes = [
     {
@@ -79,6 +80,30 @@ const Reports: React.FC = () => {
     ? reportTypes 
     : reportTypes.filter(r => r.category === selectedCategory);
 
+  const handleDownload = (reportId: string, reportTitle: string) => {
+    // Create a mock PDF download
+    const link = document.createElement('a');
+    link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(`${reportTitle}\nGenerated on: ${new Date().toLocaleString()}\n\nThis is a mock report content for demonstration purposes.`);
+    link.download = `${reportTitle.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    alert(`${reportTitle} downloaded successfully!`);
+  };
+
+  const handleGenerate = (reportId: string, reportTitle: string) => {
+    setIsGenerating(reportId);
+    
+    // Simulate report generation
+    setTimeout(() => {
+      setIsGenerating(null);
+      alert(`${reportTitle} generated successfully!`);
+      // Automatically download after generation
+      handleDownload(reportId, reportTitle);
+    }, 2000);
+  };
+
   return (
     <div className="reports">
       <div className="page-header">
@@ -147,12 +172,19 @@ const Reports: React.FC = () => {
               </div>
 
               <div className="report-actions">
-                <button className="btn-secondary">
+                <button 
+                  className="btn-secondary"
+                  onClick={() => handleDownload(report.id, report.title)}
+                >
                   <Download size={16} />
                   Download Latest
                 </button>
-                <button className="btn-primary">
-                  Generate New
+                <button 
+                  className="btn-primary"
+                  onClick={() => handleGenerate(report.id, report.title)}
+                  disabled={isGenerating === report.id}
+                >
+                  {isGenerating === report.id ? 'Generating...' : 'Generate New'}
                 </button>
               </div>
             </div>
