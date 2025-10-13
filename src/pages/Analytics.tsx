@@ -491,42 +491,6 @@ const Analytics: React.FC = () => {
         </div>
       </div>
 
-      {/* Placeholder Section */}
-      <div className="placeholder-section">
-        <h3>🤖 Advanced ML Capabilities (Implementation Required)</h3>
-        <div className="placeholder-grid">
-          <div className="placeholder-card">
-            <h4>Deep Learning Models</h4>
-            <p>LSTM/GRU networks for time-series forecasting and pattern recognition in sensor data</p>
-            <span className="tech-note">Requires: TensorFlow/PyTorch, GPU infrastructure, training data pipeline</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Reinforcement Learning for Optimization</h4>
-            <p>RL agents for optimal load balancing and switching sequence optimization</p>
-            <span className="tech-note">Requires: Simulation environment, reward function design, policy training</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Federated Learning</h4>
-            <p>Train models across multiple substations without sharing raw data</p>
-            <span className="tech-note">Requires: Federated learning framework, secure aggregation protocols</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Explainable AI (XAI)</h4>
-            <p>SHAP/LIME integration for model interpretability and decision transparency</p>
-            <span className="tech-note">Requires: XAI libraries, visualization framework, expert validation</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>AutoML Pipeline</h4>
-            <p>Automated model selection, hyperparameter tuning, and feature engineering</p>
-            <span className="tech-note">Requires: AutoML platform (H2O.ai, Auto-sklearn), MLOps infrastructure</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Real-time Inference Engine</h4>
-            <p>Low-latency model serving for critical real-time predictions</p>
-            <span className="tech-note">Requires: TensorFlow Serving/TorchServe, edge computing nodes, API gateway</span>
-          </div>
-        </div>
-      </div>
 
       {/* Investigation Modal */}
       {showInvestigationModal && selectedAnomaly && (
