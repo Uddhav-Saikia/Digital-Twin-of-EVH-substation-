@@ -52,6 +52,10 @@ const Maintenance: React.FC = () => {
   const [showDGADashboard, setShowDGADashboard] = useState(false);
   const [testRunning, setTestRunning] = useState(false);
   const [testLogs, setTestLogs] = useState<string[]>([]);
+  
+  // Calendar functionality
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showDayDetails, setShowDayDetails] = useState(false);
 
   // Persist records and notes to localStorage
   React.useEffect(() => {
@@ -169,35 +173,69 @@ const Maintenance: React.FC = () => {
     
     // Previous month days
     const prevMonthLastDay = new Date(year, month, 0).getDate();
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const day = prevMonthLastDay - i;
+      const date = new Date(prevYear, prevMonth, day);
+      const maintenanceCount = getMaintenanceForDate(date).length;
       days.push({
-        day: prevMonthLastDay - i,
+        day,
+        date,
         isCurrentMonth: false,
-        hasEvent: false
+        hasEvent: maintenanceCount > 0,
+        maintenanceCount
       });
     }
     
-    // Current month days
-    const maintenanceDates = [10, 15, 25]; // Sample maintenance dates
+    // Current month days - check actual maintenance records
     for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const maintenanceCount = getMaintenanceForDate(date).length;
       days.push({
         day,
+        date,
         isCurrentMonth: true,
-        hasEvent: maintenanceDates.includes(day)
+        hasEvent: maintenanceCount > 0,
+        maintenanceCount
       });
     }
     
     // Next month days to fill the grid
     const remainingDays = 35 - days.length;
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    
     for (let day = 1; day <= remainingDays; day++) {
+      const date = new Date(nextYear, nextMonth, day);
+      const maintenanceCount = getMaintenanceForDate(date).length;
       days.push({
         day,
+        date,
         isCurrentMonth: false,
-        hasEvent: false
+        hasEvent: maintenanceCount > 0,
+        maintenanceCount
       });
     }
     
     return days;
+  };
+
+  const getMaintenanceForDate = (date: Date) => {
+    return maintenanceRecords.filter(record => {
+      const recordDate = new Date(record.scheduledDate);
+      return recordDate.getDate() === date.getDate() &&
+             recordDate.getMonth() === date.getMonth() &&
+             recordDate.getFullYear() === date.getFullYear();
+    });
+  };
+
+  const handleDayClick = (dayInfo: any) => {
+    if (dayInfo.hasEvent) {
+      setSelectedDate(dayInfo.date);
+      setShowDayDetails(true);
+    }
   };
 
   const handleStartWork = (id: string) => {
@@ -435,9 +473,16 @@ const Maintenance: React.FC = () => {
                 <div 
                   key={index} 
                   className={`calendar-day ${dayInfo.isCurrentMonth ? 'current-month' : 'other-month'} ${dayInfo.hasEvent ? 'has-event' : ''}`}
+                  onClick={() => handleDayClick(dayInfo)}
+                  style={{ cursor: dayInfo.hasEvent ? 'pointer' : 'default' }}
                 >
                   <span className="day-number">{dayInfo.day}</span>
-                  {dayInfo.hasEvent && <div className="event-dot"></div>}
+                  {dayInfo.hasEvent && (
+                    <>
+                      <div className="event-dot"></div>
+                      <span className="maintenance-count">{dayInfo.maintenanceCount}</span>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -885,6 +930,89 @@ const Maintenance: React.FC = () => {
             <div className="modal-actions">
               <button className="btn-secondary" onClick={() => setShowDGADashboard(false)}>Close</button>
               <button className="btn-primary">Export Report</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Day Details Modal */}
+      {showDayDetails && selectedDate && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Maintenance on {selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+              <button className="modal-close" onClick={() => setShowDayDetails(false)}>×</button>
+            </div>
+            <div className="day-details-content">
+              {getMaintenanceForDate(selectedDate).map((record) => (
+                <div key={record.id} className="day-maintenance-card">
+                  <div className="day-maintenance-header">
+                    <div>
+                      <h4>{record.assetId} - {record.assetType}</h4>
+                      <p>{record.description}</p>
+                    </div>
+                    <div className="maintenance-status">
+                      {getStatusIcon(record.status)}
+                      <span className={`status-text ${record.status}`}>{record.status}</span>
+                    </div>
+                  </div>
+                  <div className="day-maintenance-details">
+                    <div className="detail-item">
+                      <span className="detail-label">Type:</span>
+                      <span className={`maintenance-type ${record.type}`}>
+                        {record.type.charAt(0).toUpperCase() + record.type.slice(1)}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Priority:</span>
+                      <span className={`priority-badge ${getPriorityClass(record.priority)}`}>
+                        {record.priority.charAt(0).toUpperCase() + record.priority.slice(1)}
+                      </span>
+                    </div>
+                    {record.technician && (
+                      <div className="detail-item">
+                        <span className="detail-label">Technician:</span>
+                        <span>{record.technician}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="day-maintenance-actions">
+                    {record.status === 'scheduled' && (
+                      <>
+                        <button className="btn-secondary" onClick={() => {
+                          handleStartWork(record.id);
+                          setShowDayDetails(false);
+                        }}>Start Work</button>
+                        <button className="btn-secondary" onClick={() => {
+                          handleDeleteRecord(record.id);
+                          setShowDayDetails(false);
+                        }}>Delete</button>
+                      </>
+                    )}
+                    {record.status === 'in-progress' && (
+                      <>
+                        <button className="btn-secondary" onClick={() => {
+                          setShowDayDetails(false);
+                          handleOpenNoteModal(record.id);
+                        }}>Add Notes</button>
+                        <button className="btn-primary" onClick={() => {
+                          handleMarkComplete(record.id);
+                          setShowDayDetails(false);
+                        }}>Mark Complete</button>
+                      </>
+                    )}
+                    {record.status === 'completed' && (
+                      <button className="btn-secondary" onClick={() => {
+                        setShowDayDetails(false);
+                        setShowReportId(record.id);
+                      }}>View Report</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={() => setShowDayDetails(false)}>Close</button>
             </div>
           </div>
         </div>
