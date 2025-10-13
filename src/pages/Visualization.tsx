@@ -4,7 +4,7 @@ import Substation3DScene from '../components/Substation3DScene';
 import './Visualization.css';
 
 const Visualization: React.FC = () => {
-  const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
+  const [viewMode, setViewMode] = useState<'2d' | '3d'>('3d');
   const [selectedLayer, setSelectedLayer] = useState<string[]>(['transformers', 'breakers', 'busbars']);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -55,10 +55,11 @@ const Visualization: React.FC = () => {
   };
 
   const handleFullscreen = () => {
-    const canvas3d = document.querySelector('.canvas-3d') as HTMLElement;
+    const targetSelector = viewMode === '2d' ? '.canvas-2d' : '.canvas-3d';
+    const canvas = document.querySelector(targetSelector) as HTMLElement;
     if (!document.fullscreenElement) {
-      if (canvas3d) {
-        canvas3d.requestFullscreen();
+      if (canvas) {
+        canvas.requestFullscreen();
         setIsFullscreen(true);
       }
     } else {
