@@ -1,6 +1,6 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Activity, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, AlertTriangle, Activity, TrendingUp, X, CheckCircle, Calendar, Edit as EditIcon, Play } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { 
   mockTransformers, 
@@ -9,10 +9,13 @@ import {
   mockCT_CVT, 
   mockProtectionSystems 
 } from '../data/mockData';
+import { useNotifications } from '../contexts/NotificationContext';
 import './AssetDetail.css';
 
 const AssetDetail: React.FC = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
+  const navigate = useNavigate();
+  const { setNotifications } = useNotifications();
   
   // Find the asset based on type and ID
   let asset: any = null;
@@ -35,6 +38,38 @@ const AssetDetail: React.FC = () => {
     assetType = 'Protection System';
   }
 
+  // Modal states
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDiagnosticsModal, setShowDiagnosticsModal] = useState(false);
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  const [diagnosticsRunning, setDiagnosticsRunning] = useState(false);
+  const [diagnosticsResults, setDiagnosticsResults] = useState<any>(null);
+  
+  // Local state for asset modifications
+  const [localHealth, setLocalHealth] = useState(asset?.health ?? 0);
+  const [localAlerts, setLocalAlerts] = useState<any[]>(asset?.alerts || []);
+  const [editForm, setEditForm] = useState({
+    name: asset?.name || '',
+    status: asset?.status || asset?.position || 'operational'
+  });
+  const [maintenanceForm, setMaintenanceForm] = useState({
+    date: '',
+    type: 'preventive',
+    description: '',
+    technician: ''
+  });
+
+  useEffect(() => {
+    if (asset) {
+      setLocalHealth(asset.health ?? 0);
+      setLocalAlerts(asset.alerts || []);
+      setEditForm({
+        name: asset.name,
+        status: asset.status || asset.position || 'operational'
+      });
+    }
+  }, [asset]);
+
   if (!asset) {
     return (
       <div className="asset-detail">
@@ -42,6 +77,97 @@ const AssetDetail: React.FC = () => {
       </div>
     );
   }
+
+  // Handler functions
+  const handleRunDiagnostics = () => {
+    setShowDiagnosticsModal(true);
+    setDiagnosticsRunning(true);
+    setDiagnosticsResults(null);
+
+    // Simulate diagnostics running
+    setTimeout(() => {
+      const delta = Math.round((Math.random() - 0.3) * 10);
+      const newHealth = Math.min(100, Math.max(0, localHealth + delta));
+      const issues = [];
+      
+      if (newHealth < 70) {
+        issues.push({ severity: 'high', message: 'Health score below threshold' });
+      }
+      if (type === 'transformer' && asset.temperature > 75) {
+        issues.push({ severity: 'medium', message: 'Operating temperature elevated' });
+      }
+      if (type === 'breaker' && asset.contactWear > 20) {
+        issues.push({ severity: 'high', message: 'Contact wear exceeds recommended limit' });
+      }
+
+      setLocalHealth(newHealth);
+      setDiagnosticsResults({
+        health: newHealth,
+        timestamp: new Date().toISOString(),
+        issues: issues,
+        status: issues.length === 0 ? 'passed' : 'warning'
+      });
+      setDiagnosticsRunning(false);
+
+      // Add notification
+      setNotifications(prev => [{
+        id: `diag-${Date.now()}`,
+        severity: issues.length === 0 ? 'low' : 'medium',
+        message: `Diagnostics completed for ${asset.name} - Health: ${newHealth}%`,
+        timestamp: new Date().toISOString(),
+        acknowledged: false
+      }, ...(prev || [])]);
+    }, 3000);
+  };
+
+  const handleScheduleMaintenance = () => {
+    if (!maintenanceForm.date || !maintenanceForm.description) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setNotifications(prev => [{
+      id: `maint-${Date.now()}`,
+      severity: 'low',
+      message: `Maintenance scheduled for ${asset.name} on ${new Date(maintenanceForm.date).toLocaleDateString()}`,
+      timestamp: new Date().toISOString(),
+      acknowledged: false
+    }, ...(prev || [])]);
+
+    setShowMaintenanceModal(false);
+    setMaintenanceForm({
+      date: '',
+      type: 'preventive',
+      description: '',
+      technician: ''
+    });
+  };
+
+  const handleAcknowledgeAlert = (alertId: string) => {
+    setLocalAlerts(prev => prev.map(a => 
+      a.id === alertId ? { ...a, acknowledged: true } : a
+    ));
+
+    setNotifications(prev => [{
+      id: `ack-${Date.now()}`,
+      severity: 'low',
+      message: `Alert acknowledged for ${asset.name}`,
+      timestamp: new Date().toISOString(),
+      acknowledged: false
+    }, ...(prev || [])]);
+  };
+
+  const handleSaveEdit = () => {
+    setNotifications(prev => [{
+      id: `edit-${Date.now()}`,
+      severity: 'low',
+      message: `Asset ${editForm.name} updated successfully`,
+      timestamp: new Date().toISOString(),
+      acknowledged: false
+    }, ...(prev || [])]);
+    
+    setShowEditModal(false);
+  };
 
   // Generate mock historical data for charts
   const generateHistoricalData = () => {
@@ -74,8 +200,14 @@ const AssetDetail: React.FC = () => {
             <p className="detail-subtitle">{assetType} • {asset.id}</p>
           </div>
           <div className="detail-actions">
-            <button className="btn-secondary">Edit</button>
-            <button className="btn-primary">Run Diagnostics</button>
+            <button className="btn-secondary" onClick={() => setShowEditModal(true)}>
+              <EditIcon size={16} />
+              Edit
+            </button>
+            <button className="btn-primary" onClick={handleRunDiagnostics}>
+              <Play size={16} />
+              Run Diagnostics
+            </button>
           </div>
         </div>
       </div>
@@ -91,9 +223,9 @@ const AssetDetail: React.FC = () => {
         <div className="overview-card">
           <div className="overview-label">Health Score</div>
           <div className="overview-value" style={{ 
-            color: asset.health >= 90 ? '#22c55e' : asset.health >= 75 ? '#3b82f6' : '#f59e0b' 
+            color: localHealth >= 90 ? '#22c55e' : localHealth >= 75 ? '#3b82f6' : '#f59e0b' 
           }}>
-            {asset.health}%
+            {localHealth}%
           </div>
         </div>
         {asset.temperature && (
@@ -221,20 +353,41 @@ const AssetDetail: React.FC = () => {
               </div>
             )}
           </div>
-          <button className="btn-secondary full-width">Schedule Maintenance</button>
+          <button 
+            className="btn-secondary full-width"
+            onClick={() => setShowMaintenanceModal(true)}
+          >
+            <Calendar size={16} />
+            Schedule Maintenance
+          </button>
         </div>
 
         {/* Alerts */}
-        {asset.alerts && asset.alerts.length > 0 && (
+        {localAlerts && localAlerts.length > 0 && (
           <div className="detail-card">
             <h2>Active Alerts</h2>
             <div className="alerts-list">
-              {asset.alerts.map((alert: any) => (
-                <div key={alert.id} className={`alert-item ${alert.severity}`}>
+              {localAlerts.map((alert: any) => (
+                <div key={alert.id} className={`alert-item ${alert.severity} ${alert.acknowledged ? 'acknowledged' : ''}`}>
                   <AlertTriangle size={18} />
-                  <div>
+                  <div className="alert-content">
                     <div className="alert-message">{alert.message}</div>
                     <div className="alert-time">{new Date(alert.timestamp).toLocaleString()}</div>
+                    {!alert.acknowledged && (
+                      <button 
+                        className="btn-acknowledge"
+                        onClick={() => handleAcknowledgeAlert(alert.id)}
+                      >
+                        <CheckCircle size={14} />
+                        Acknowledge
+                      </button>
+                    )}
+                    {alert.acknowledged && (
+                      <span className="acknowledged-badge">
+                        <CheckCircle size={14} />
+                        Acknowledged
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -319,6 +472,199 @@ const AssetDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Edit Asset</h2>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Asset Name</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({...editForm, status: e.target.value})}
+                >
+                  <option value="operational">Operational</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="fault">Fault</option>
+                  <option value="offline">Offline</option>
+                </select>
+              </div>
+              <p className="form-note">
+                <AlertTriangle size={16} />
+                Note: Changes are for demonstration only and won't persist after page refresh.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowEditModal(false)}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handleSaveEdit}>
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Diagnostics Modal */}
+      {showDiagnosticsModal && (
+        <div className="modal-overlay" onClick={() => !diagnosticsRunning && setShowDiagnosticsModal(false)}>
+          <div className="modal-content diagnostics-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Diagnostic Results</h2>
+              <button 
+                className="modal-close" 
+                onClick={() => setShowDiagnosticsModal(false)}
+                disabled={diagnosticsRunning}
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              {diagnosticsRunning ? (
+                <div className="diagnostics-running">
+                  <div className="spinner"></div>
+                  <h3>Running Diagnostics...</h3>
+                  <p>Analyzing {asset.name}</p>
+                  <div className="progress-steps">
+                    <div className="step completed">✓ Hardware Check</div>
+                    <div className="step active">⟳ Performance Analysis</div>
+                    <div className="step">○ Generating Report</div>
+                  </div>
+                </div>
+              ) : diagnosticsResults ? (
+                <div className="diagnostics-results">
+                  <div className={`results-header ${diagnosticsResults.status}`}>
+                    {diagnosticsResults.status === 'passed' ? (
+                      <>
+                        <CheckCircle size={48} />
+                        <h3>Diagnostics Passed</h3>
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle size={48} />
+                        <h3>Issues Detected</h3>
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="results-summary">
+                    <div className="summary-item">
+                      <span>Health Score</span>
+                      <strong style={{ 
+                        color: diagnosticsResults.health >= 90 ? '#22c55e' : 
+                               diagnosticsResults.health >= 75 ? '#3b82f6' : '#f59e0b' 
+                      }}>
+                        {diagnosticsResults.health}%
+                      </strong>
+                    </div>
+                    <div className="summary-item">
+                      <span>Timestamp</span>
+                      <strong>{new Date(diagnosticsResults.timestamp).toLocaleString()}</strong>
+                    </div>
+                  </div>
+
+                  {diagnosticsResults.issues.length > 0 && (
+                    <div className="issues-list">
+                      <h4>Detected Issues</h4>
+                      {diagnosticsResults.issues.map((issue: any, idx: number) => (
+                        <div key={idx} className={`issue-item ${issue.severity}`}>
+                          <AlertTriangle size={16} />
+                          <span>{issue.message}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+            {!diagnosticsRunning && (
+              <div className="modal-footer">
+                <button className="btn-primary" onClick={() => setShowDiagnosticsModal(false)}>
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Maintenance Scheduling Modal */}
+      {showMaintenanceModal && (
+        <div className="modal-overlay" onClick={() => setShowMaintenanceModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Schedule Maintenance</h2>
+              <button className="modal-close" onClick={() => setShowMaintenanceModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Maintenance Date *</label>
+                <input
+                  type="date"
+                  value={maintenanceForm.date}
+                  onChange={(e) => setMaintenanceForm({...maintenanceForm, date: e.target.value})}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div className="form-group">
+                <label>Maintenance Type</label>
+                <select
+                  value={maintenanceForm.type}
+                  onChange={(e) => setMaintenanceForm({...maintenanceForm, type: e.target.value})}
+                >
+                  <option value="preventive">Preventive</option>
+                  <option value="corrective">Corrective</option>
+                  <option value="predictive">Predictive</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Description *</label>
+                <textarea
+                  value={maintenanceForm.description}
+                  onChange={(e) => setMaintenanceForm({...maintenanceForm, description: e.target.value})}
+                  placeholder="Describe the maintenance work to be performed..."
+                  rows={4}
+                />
+              </div>
+              <div className="form-group">
+                <label>Assigned Technician</label>
+                <input
+                  type="text"
+                  value={maintenanceForm.technician}
+                  onChange={(e) => setMaintenanceForm({...maintenanceForm, technician: e.target.value})}
+                  placeholder="Technician name (optional)"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowMaintenanceModal(false)}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handleScheduleMaintenance}>
+                Schedule Maintenance
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
