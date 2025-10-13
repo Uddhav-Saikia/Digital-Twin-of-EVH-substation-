@@ -16,7 +16,8 @@ import {
   User,
   Sun,
   Moon,
-  LogOut
+  LogOut,
+  GraduationCap
 } from 'lucide-react';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import { useNotifications } from '../contexts/NotificationContext';
@@ -119,6 +120,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         <div className="top-nav-right">
+          <Link 
+            to="/training" 
+            className="training-button"
+            title="Operator Training & Development"
+          >
+            <GraduationCap size={20} />
+            <span>Training</span>
+          </Link>
           <button 
             className="icon-button"
             onClick={toggleDarkMode}
