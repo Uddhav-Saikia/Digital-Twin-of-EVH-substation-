@@ -556,6 +556,7 @@ const Simulation: React.FC = () => {
       </div>
 
       {/* Placeholder Section */}
+      {/*
       <div className="placeholder-section">
         <h3>⚡ Advanced Simulation Capabilities</h3>
         <div className="placeholder-grid">
@@ -591,6 +592,7 @@ const Simulation: React.FC = () => {
           </div>
         </div>
       </div>
+      */}
 
       {/* Training Module */}
       <div className="training-module">
