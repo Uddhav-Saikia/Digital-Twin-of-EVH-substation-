@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { mockSystemAlerts } from '../data/mockData';
 
 interface NotificationItem {
@@ -21,8 +21,25 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
+const STORAGE_KEY = 'evh_notifications';
+
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(mockSystemAlerts);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return mockSystemAlerts;
+      }
+    }
+    return mockSystemAlerts;
+  });
+
+  // Persist notifications to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+  }, [notifications]);
 
   const unreadCount = notifications.filter(n => !n.acknowledged).length;
 

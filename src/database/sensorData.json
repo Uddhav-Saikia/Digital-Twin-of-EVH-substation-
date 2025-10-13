@@ -1,0 +1,197 @@
+{
+  "sensors": [
+    {
+      "id": "SENS-001",
+      "name": "Temperature Sensor TXF-001",
+      "type": "Temperature",
+      "assetId": "TXF-001",
+      "location": "Transformer T1",
+      "status": "online",
+      "value": 68.5,
+      "unit": "°C",
+      "threshold": {
+        "min": 40,
+        "max": 85
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "SCADA"
+    },
+    {
+      "id": "SENS-002",
+      "name": "Vibration Sensor TXF-001",
+      "type": "Vibration",
+      "assetId": "TXF-001",
+      "location": "Transformer T1",
+      "status": "online",
+      "value": 2.3,
+      "unit": "mm/s",
+      "threshold": {
+        "min": 0,
+        "max": 5
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "IoT"
+    },
+    {
+      "id": "SENS-003",
+      "name": "SF6 Pressure Sensor CB-001",
+      "type": "Pressure",
+      "assetId": "CB-001",
+      "location": "Circuit Breaker CB-001",
+      "status": "online",
+      "value": 6.2,
+      "unit": "bar",
+      "threshold": {
+        "min": 5.5,
+        "max": 7.0
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "SCADA"
+    },
+    {
+      "id": "SENS-004",
+      "name": "Contact Wear Sensor CB-002",
+      "type": "Wear",
+      "assetId": "CB-002",
+      "location": "Circuit Breaker CB-002",
+      "status": "warning",
+      "value": 22.7,
+      "unit": "%",
+      "threshold": {
+        "min": 0,
+        "max": 20
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "SCADA"
+    },
+    {
+      "id": "SENS-005",
+      "name": "Oil Level Sensor TXF-001",
+      "type": "Level",
+      "assetId": "TXF-001",
+      "location": "Transformer T1",
+      "status": "online",
+      "value": 98.2,
+      "unit": "%",
+      "threshold": {
+        "min": 90,
+        "max": 100
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "IoT"
+    },
+    {
+      "id": "SENS-006",
+      "name": "Humidity Sensor Control Room",
+      "type": "Humidity",
+      "assetId": "CTRL-001",
+      "location": "Control Room",
+      "status": "online",
+      "value": 45,
+      "unit": "%",
+      "threshold": {
+        "min": 30,
+        "max": 60
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "IoT"
+    },
+    {
+      "id": "SENS-007",
+      "name": "Voltage Sensor 400kV Bus",
+      "type": "Voltage",
+      "assetId": "BUS-400",
+      "location": "400kV Bus",
+      "status": "online",
+      "value": 398.5,
+      "unit": "kV",
+      "threshold": {
+        "min": 380,
+        "max": 420
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "SCADA"
+    },
+    {
+      "id": "SENS-008",
+      "name": "Current Sensor L1",
+      "type": "Current",
+      "assetId": "BUS-400",
+      "location": "400kV Bus L1",
+      "status": "online",
+      "value": 2850,
+      "unit": "A",
+      "threshold": {
+        "min": 0,
+        "max": 4000
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "SCADA"
+    },
+    {
+      "id": "SENS-009",
+      "name": "Temperature Sensor TXF-002",
+      "type": "Temperature",
+      "assetId": "TXF-002",
+      "location": "Transformer T2",
+      "status": "online",
+      "value": 72.1,
+      "unit": "°C",
+      "threshold": {
+        "min": 40,
+        "max": 85
+      },
+      "lastUpdate": "2025-10-13T10:30:00Z",
+      "dataSource": "SCADA"
+    },
+    {
+      "id": "SENS-010",
+      "name": "Door Sensor Switchyard",
+      "type": "Access",
+      "assetId": "SYD-001",
+      "location": "Switchyard Gate",
+      "status": "offline",
+      "value": 0,
+      "unit": "state",
+      "threshold": {
+        "min": 0,
+        "max": 1
+      },
+      "lastUpdate": "2025-10-13T09:15:00Z",
+      "dataSource": "IoT"
+    }
+  ],
+  "scadaSystems": [
+    {
+      "id": "SCADA-001",
+      "name": "Primary SCADA Server",
+      "status": "online",
+      "protocol": "IEC 61850",
+      "connectedSensors": 6,
+      "dataRate": "1000 points/sec",
+      "lastSync": "2025-10-13T10:30:00Z"
+    }
+  ],
+  "iotGateways": [
+    {
+      "id": "IOT-GW-001",
+      "name": "LoRaWAN Gateway 1",
+      "status": "online",
+      "protocol": "LoRaWAN",
+      "connectedDevices": 4,
+      "signalStrength": -65,
+      "lastSync": "2025-10-13T10:29:45Z"
+    }
+  ],
+  "historicalDatabases": [
+    {
+      "id": "HIST-DB-001",
+      "name": "TimeSeries DB",
+      "type": "InfluxDB",
+      "status": "online",
+      "dataPoints": 15678234,
+      "retention": "2 years",
+      "lastBackup": "2025-10-13T02:00:00Z"
+    }
+  ]
+}

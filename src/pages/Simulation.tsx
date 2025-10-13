@@ -20,6 +20,7 @@ const Simulation: React.FC = () => {
   const [simulationProgress, setSimulationProgress] = useState(0);
   const [simulationResults, setSimulationResults] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
   const [scenarios, setScenarios] = useState<SimulationScenario[]>(mockSimulationScenarios);
   const [formData, setFormData] = useState({
     name: '',
@@ -28,6 +29,89 @@ const Simulation: React.FC = () => {
     targetAsset: '',
     parameters: ''
   });
+
+  const generateScenarioResults = (scenario: SimulationScenario) => {
+    const baseTime = Math.random() * 2 + 2; // 2-4 seconds
+    
+    switch (scenario.type) {
+      case 'fault':
+        return {
+          status: 'completed',
+          executionTime: `${baseTime.toFixed(1)}s`,
+          scenarioName: scenario.name,
+          faultType: scenario.parameters.faultType || 'L-G',
+          faultCurrent: `${(Math.random() * 30 + 15).toFixed(1)} kA`,
+          clearingTime: `${(Math.random() * 80 + 40).toFixed(0)} ms`,
+          protectionOperated: ['PROT-001', 'PROT-003', 'PROT-005'].slice(0, Math.floor(Math.random() * 2) + 1),
+          breakersOperated: ['CB-001', 'CB-004', 'CB-007'].slice(0, Math.floor(Math.random() * 2) + 1),
+          voltageProfile: Math.random() > 0.3 ? 'Normal' : 'Degraded',
+          stabilityMargin: `${(Math.random() * 15 + 10).toFixed(1)}%`,
+          peakVoltage: `${(Math.random() * 150 + 380).toFixed(1)} kV`,
+          faultLocation: scenario.parameters.targetAsset || 'Bus A',
+          affectedZones: Math.floor(Math.random() * 3) + 1
+        };
+      
+      case 'load':
+        return {
+          status: 'completed',
+          executionTime: `${baseTime.toFixed(1)}s`,
+          scenarioName: scenario.name,
+          analysisType: 'Load Flow',
+          totalLoad: `${(Math.random() * 100 + 150).toFixed(1)} MW`,
+          totalGeneration: `${(Math.random() * 100 + 160).toFixed(1)} MW`,
+          systemLosses: `${(Math.random() * 3 + 1).toFixed(2)} MW`,
+          minVoltage: `${(Math.random() * 10 + 385).toFixed(1)} kV`,
+          maxVoltage: `${(Math.random() * 10 + 405).toFixed(1)} kV`,
+          powerFactor: (Math.random() * 0.1 + 0.9).toFixed(3),
+          converged: true,
+          iterations: Math.floor(Math.random() * 20) + 5,
+          loadingPercentage: `${(Math.random() * 30 + 60).toFixed(1)}%`,
+          criticalBuses: ['Bus-01', 'Bus-15', 'Bus-28'].slice(0, Math.floor(Math.random() * 2) + 1)
+        };
+      
+      case 'switching':
+        return {
+          status: 'completed',
+          executionTime: `${baseTime.toFixed(1)}s`,
+          scenarioName: scenario.name,
+          operationType: 'Bus Transfer',
+          sequenceSteps: Math.floor(Math.random() * 5) + 4,
+          breakersOperated: ['CB-001', 'CB-002', 'CB-005', 'CB-009'].slice(0, Math.floor(Math.random() * 3) + 2),
+          switchingTime: `${(Math.random() * 500 + 200).toFixed(0)} ms`,
+          loadInterruption: Math.random() > 0.7 ? 'None' : `${(Math.random() * 50).toFixed(0)} ms`,
+          voltageTransient: `${(Math.random() * 5 + 2).toFixed(1)}%`,
+          successRate: '100%',
+          interlockStatus: 'All interlocks satisfied',
+          postSwitchVoltage: `${(Math.random() * 5 + 398).toFixed(1)} kV`,
+          safetyChecks: 'All passed'
+        };
+      
+      case 'protection':
+        return {
+          status: 'completed',
+          executionTime: `${baseTime.toFixed(1)}s`,
+          scenarioName: scenario.name,
+          coordinationType: 'Time-Current Coordination',
+          protectionZones: Math.floor(Math.random() * 3) + 2,
+          primaryProtection: `${(Math.random() * 100 + 50).toFixed(0)} ms`,
+          backupProtection: `${(Math.random() * 200 + 300).toFixed(0)} ms`,
+          coordinationMargin: `${(Math.random() * 150 + 100).toFixed(0)} ms`,
+          selectivity: Math.random() > 0.2 ? 'Maintained' : 'Marginal',
+          relaySettings: 'Verified',
+          ctRatios: '1000/5A',
+          faultCleared: true,
+          healthyEquipment: 'All preserved'
+        };
+      
+      default:
+        return {
+          status: 'completed',
+          executionTime: `${baseTime.toFixed(1)}s`,
+          scenarioName: scenario.name,
+          message: 'Simulation completed successfully'
+        };
+    }
+  };
 
   const runSimulation = (scenarioId: string) => {
     setIsRunning(true);
@@ -52,21 +136,22 @@ const Simulation: React.FC = () => {
       setRunningScenarioId(null);
       setSimulationProgress(100);
       
-      // Mock simulation results
-      const scenario = mockSimulationScenarios.find(s => s.id === scenarioId);
-      const mockResults = {
-        status: 'completed',
-        executionTime: '3.2s',
-        faultCurrent: `${(Math.random() * 50 + 20).toFixed(1)} kA`,
-        clearingTime: `${(Math.random() * 100 + 50).toFixed(0)} ms`,
-        protectionOperated: ['PROT-001', 'PROT-002'],
-        breakersOperated: ['CB-001'],
-        voltageProfile: 'Normal',
-        stabilityMargin: `${(Math.random() * 20 + 15).toFixed(1)}%`
-      };
-      
-      setSimulationResults(mockResults);
-      alert(`Simulation ${scenarioId} completed successfully!\nExecution Time: ${mockResults.executionTime}`);
+      // Get scenario and generate unique results
+      const scenario = scenarios.find(s => s.id === scenarioId);
+      if (scenario) {
+        const results = generateScenarioResults(scenario);
+        setSimulationResults(results);
+        setShowResultsModal(true);
+        
+        // Update scenario with last run time and results
+        setScenarios(prevScenarios => 
+          prevScenarios.map(s => 
+            s.id === scenarioId 
+              ? { ...s, lastRun: new Date().toISOString(), results } 
+              : s
+          )
+        );
+      }
     }, 3000);
   };
 
@@ -117,7 +202,7 @@ const Simulation: React.FC = () => {
   };
 
   const handleCloseResults = () => {
-    setSimulationResults(null);
+    setShowResultsModal(false);
   };
 
   const handleDeleteScenario = (id: string) => {
@@ -195,20 +280,6 @@ const Simulation: React.FC = () => {
             <li>Energization sequences</li>
           </ul>
         </div>
-
-        <div className="sim-type-card training">
-          <div className="sim-type-icon">
-            <Play size={32} />
-          </div>
-          <h3>Operator Training</h3>
-          <p>Interactive training scenarios for substation operators</p>
-          <ul className="sim-capabilities">
-            <li>Normal operations</li>
-            <li>Emergency procedures</li>
-            <li>Protection coordination</li>
-            <li>Communication protocols</li>
-          </ul>
-        </div>
       </div>
 
       {/* Saved Scenarios */}
@@ -242,21 +313,7 @@ const Simulation: React.FC = () => {
 
               {scenario.lastRun && (
                 <div className="scenario-meta">
-                  <span>Last run: {new Date(scenario.lastRun).toLocaleDateString()}</span>
-                </div>
-              )}
-
-              {scenario.results && (
-                <div className="scenario-results">
-                  <h4>Last Results:</h4>
-                  <div className="results-summary">
-                    {Object.entries(scenario.results).map(([key, value]) => (
-                      <div key={key} className="result-item">
-                        <span className="result-key">{key}:</span>
-                        <span className="result-value">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <span>Last run: {new Date(scenario.lastRun).toLocaleDateString()} at {new Date(scenario.lastRun).toLocaleTimeString()}</span>
                 </div>
               )}
 
@@ -311,39 +368,61 @@ const Simulation: React.FC = () => {
         </div>
       )}
 
-      {/* Results Display */}
-      {simulationResults && !isRunning && (
-        <div className="simulation-results">
-          <div className="results-header">
-            <h3>Simulation Results</h3>
-            <button className="btn-close-results" onClick={handleCloseResults} title="Close Results">
-              <X size={20} />
-            </button>
-          </div>
-          <div className="results-grid">
-            <div className="result-item">
-              <label>Status:</label>
-              <span className="success">{simulationResults.status}</span>
+      {/* Results Modal */}
+      {showResultsModal && simulationResults && (
+        <div className="modal-overlay results-modal-overlay">
+          <div className="modal-content results-modal-content">
+            <div className="modal-header results-modal-header">
+              <div className="results-title">
+                <h3>Simulation Results</h3>
+                <span className="results-status success">
+                  {simulationResults.status.toUpperCase()}
+                </span>
+              </div>
+              <button className="modal-close" onClick={handleCloseResults}>×</button>
             </div>
-            <div className="result-item">
-              <label>Execution Time:</label>
-              <span>{simulationResults.executionTime}</span>
-            </div>
-            <div className="result-item">
-              <label>Fault Current:</label>
-              <span>{simulationResults.faultCurrent}</span>
-            </div>
-            <div className="result-item">
-              <label>Clearing Time:</label>
-              <span>{simulationResults.clearingTime}</span>
-            </div>
-            <div className="result-item">
-              <label>Protection Operated:</label>
-              <span>{simulationResults.protectionOperated.join(', ')}</span>
-            </div>
-            <div className="result-item">
-              <label>Breakers Operated:</label>
-              <span>{simulationResults.breakersOperated.join(', ')}</span>
+            
+            <div className="results-modal-body">
+              <div className="results-scenario-info">
+                <h4>{simulationResults.scenarioName}</h4>
+                <div className="results-meta">
+                  <span>Execution Time: {simulationResults.executionTime}</span>
+                  <span>Completed: {new Date().toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="results-grid">
+                {Object.entries(simulationResults).map(([key, value]) => {
+                  // Skip meta fields
+                  if (key === 'status' || key === 'executionTime' || key === 'scenarioName') return null;
+                  
+                  return (
+                    <div key={key} className="result-item">
+                      <label>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</label>
+                      <span className={typeof value === 'boolean' ? (value ? 'success' : 'error') : ''}>
+                        {Array.isArray(value) ? value.join(', ') : String(value)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="results-actions">
+                <button className="btn-secondary" onClick={handleCloseResults}>Close</button>
+                <button className="btn-primary" onClick={() => {
+                  // Export results logic
+                  const resultsText = JSON.stringify(simulationResults, null, 2);
+                  const blob = new Blob([resultsText], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `simulation-results-${Date.now()}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}>
+                  Export Results
+                </button>
+              </div>
             </div>
           </div>
         </div>

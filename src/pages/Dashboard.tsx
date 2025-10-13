@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Activity,
@@ -13,14 +13,24 @@ import {
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { mockSystemAlerts, mockTransformers, mockCircuitBreakers, mockIsolators, mockCT_CVT, mockProtectionSystems, generateSCADAData } from '../data/mockData';
 import { useNotifications } from '../contexts/NotificationContext';
+import CustomTooltip from '../components/CustomTooltip';
 import MobileWarningPopup from '../components/MobileWarningPopup';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { notifications } = useNotifications();
-  const scadaData = generateSCADAData(6); // Last 6 hours
+  const [scadaData, setScadaData] = useState(generateSCADAData(6));
   const recentData = scadaData.slice(-20); // Last 20 readings
+
+  // Update SCADA data every 5 seconds for real-time simulation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScadaData(generateSCADAData(6));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Calculate dynamic stats from actual data
   const allAssets = [
@@ -169,7 +179,7 @@ const Dashboard: React.FC = () => {
           </div>
         </Link>
 
-        <Link to="/assets?filter=transformers" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/monitoring" className="kpi-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="kpi-icon" style={{ background: '#ec489920' }}>
             <ThermometerSun size={24} style={{ color: '#ec4899' }} />
           </div>
@@ -195,7 +205,7 @@ const Dashboard: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="time" stroke="#6b7280" />
               <YAxis stroke="#6b7280" />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line type="monotone" dataKey="power" stroke="#3b82f6" name="Active Power (MW)" strokeWidth={2} />
               <Line type="monotone" dataKey="reactive" stroke="#f59e0b" name="Reactive Power (MVAR)" strokeWidth={2} />
@@ -224,7 +234,7 @@ const Dashboard: React.FC = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
         </div>

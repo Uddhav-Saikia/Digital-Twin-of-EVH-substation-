@@ -209,8 +209,19 @@ const Profile: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={isEditing ? editedProfile.preferences.notifications : profile.preferences.notifications}
-                  onChange={(e) => handlePreferenceChange('notifications', e.target.checked)}
-                  disabled={!isEditing}
+                  onChange={(e) => {
+                    if (isEditing) {
+                      handlePreferenceChange('notifications', e.target.checked);
+                    } else {
+                      setProfile({
+                        ...profile,
+                        preferences: {
+                          ...profile.preferences,
+                          notifications: e.target.checked
+                        }
+                      });
+                    }
+                  }}
                 />
                 <span className="toggle-slider"></span>
               </label>
@@ -228,8 +239,19 @@ const Profile: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={isEditing ? editedProfile.preferences.emailAlerts : profile.preferences.emailAlerts}
-                  onChange={(e) => handlePreferenceChange('emailAlerts', e.target.checked)}
-                  disabled={!isEditing}
+                  onChange={(e) => {
+                    if (isEditing) {
+                      handlePreferenceChange('emailAlerts', e.target.checked);
+                    } else {
+                      setProfile({
+                        ...profile,
+                        preferences: {
+                          ...profile.preferences,
+                          emailAlerts: e.target.checked
+                        }
+                      });
+                    }
+                  }}
                 />
                 <span className="toggle-slider"></span>
               </label>
@@ -247,8 +269,19 @@ const Profile: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={isEditing ? editedProfile.preferences.darkMode : profile.preferences.darkMode}
-                  onChange={(e) => handlePreferenceChange('darkMode', e.target.checked)}
-                  disabled={!isEditing}
+                  onChange={(e) => {
+                    if (isEditing) {
+                      handlePreferenceChange('darkMode', e.target.checked);
+                    } else {
+                      setProfile({
+                        ...profile,
+                        preferences: {
+                          ...profile.preferences,
+                          darkMode: e.target.checked
+                        }
+                      });
+                    }
+                  }}
                 />
                 <span className="toggle-slider"></span>
               </label>
