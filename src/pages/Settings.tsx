@@ -162,8 +162,8 @@ const Settings: React.FC = () => {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>John Smith</td>
-                      <td>john.smith@utility.com</td>
+                      <td>Rajesh Kumar</td>
+                      <td>rajesh.kumar@utility.com</td>
                       <td><span className="role-badge admin">Administrator</span></td>
                       <td>2025-10-02 09:15</td>
                       <td><span className="status-badge active">Active</span></td>
@@ -173,8 +173,8 @@ const Settings: React.FC = () => {
                       </td>
                     </tr>
                     <tr>
-                      <td>Sarah Johnson</td>
-                      <td>sarah.j@utility.com</td>
+                      <td>Priya Sharma</td>
+                      <td>priya.sharma@utility.com</td>
                       <td><span className="role-badge operator">Operator</span></td>
                       <td>2025-10-02 08:30</td>
                       <td><span className="status-badge active">Active</span></td>
@@ -184,8 +184,8 @@ const Settings: React.FC = () => {
                       </td>
                     </tr>
                     <tr>
-                      <td>Mike Davis</td>
-                      <td>m.davis@utility.com</td>
+                      <td>Amit Patel</td>
+                      <td>amit.patel@utility.com</td>
                       <td><span className="role-badge engineer">Engineer</span></td>
                       <td>2025-10-01 16:45</td>
                       <td><span className="status-badge active">Active</span></td>
