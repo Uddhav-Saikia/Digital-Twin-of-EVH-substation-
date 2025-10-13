@@ -1,3 +1,15 @@
+/* Show Note Modal Content */
+.show-note-content {
+  background: #f3f4f6;
+  color: #111827;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.dark .show-note-content {
+  background: #374151;
+  color: #ffffff;
+}
 /* Maintenance.css */
 .maintenance { max-width: 1400px; }
 

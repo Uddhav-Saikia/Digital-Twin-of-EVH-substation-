@@ -22,7 +22,19 @@ const Maintenance: React.FC = () => {
   const [filter, setFilter] = useState<MaintenanceFilter>('all');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(mockMaintenanceRecords);
+  // LocalStorage keys
+  const LS_RECORDS_KEY = 'maintenanceRecords';
+  const LS_NOTES_KEY = 'maintenanceNotes';
+
+  // Load from localStorage
+  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(() => {
+    const saved = localStorage.getItem(LS_RECORDS_KEY);
+    return saved ? JSON.parse(saved) : mockMaintenanceRecords;
+  });
+  const [notes, setNotes] = useState<{ [id: string]: string }>(() => {
+    const saved = localStorage.getItem(LS_NOTES_KEY);
+    return saved ? JSON.parse(saved) : {};
+  });
   const [formData, setFormData] = useState({
     assetId: '',
     type: '',
@@ -30,6 +42,18 @@ const Maintenance: React.FC = () => {
     scheduledDate: '',
     description: ''
   });
+  const [showNoteModal, setShowNoteModal] = useState<{ open: boolean; jobId: string | null }>({ open: false, jobId: null });
+  const [noteInput, setNoteInput] = useState('');
+  const [showingNoteId, setShowingNoteId] = useState<string | null>(null);
+  const [showReportId, setShowReportId] = useState<string | null>(null);
+
+  // Persist records and notes to localStorage
+  React.useEffect(() => {
+    localStorage.setItem(LS_RECORDS_KEY, JSON.stringify(maintenanceRecords));
+  }, [maintenanceRecords]);
+  React.useEffect(() => {
+    localStorage.setItem(LS_NOTES_KEY, JSON.stringify(notes));
+  }, [notes]);
   
   const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -186,6 +210,29 @@ const Maintenance: React.FC = () => {
     ));
   };
 
+  // Notes logic
+  const handleOpenNoteModal = (id: string) => {
+    setShowNoteModal({ open: true, jobId: id });
+    setNoteInput(notes[id] || '');
+  };
+  const handleCloseNoteModal = () => {
+    setShowNoteModal({ open: false, jobId: null });
+    setNoteInput('');
+  };
+  const handleSaveNote = () => {
+    if (showNoteModal.jobId) {
+      setNotes({ ...notes, [showNoteModal.jobId]: noteInput });
+      setShowNoteModal({ open: false, jobId: null });
+      setNoteInput('');
+    }
+  };
+  const handleShowNote = (id: string) => {
+    setShowingNoteId(id);
+  };
+  const handleCloseShowNote = () => {
+    setShowingNoteId(null);
+  };
+
   const handleDeleteRecord = (id: string) => {
     if (window.confirm('Are you sure you want to delete this maintenance record?')) {
       setMaintenanceRecords(maintenanceRecords.filter(record => record.id !== id));
@@ -322,6 +369,12 @@ const Maintenance: React.FC = () => {
                     <span>{record.technician}</span>
                   </div>
                 )}
+                {/* Show Note button if note exists */}
+                {notes[record.id] && (
+                  <div className="meta-item">
+                    <button className="btn-secondary" onClick={() => handleShowNote(record.id)}>Show Note</button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -334,12 +387,12 @@ const Maintenance: React.FC = () => {
               )}
               {record.status === 'in-progress' && (
                 <>
-                  <button className="btn-secondary">Add Notes</button>
+                  <button className="btn-secondary" onClick={() => handleOpenNoteModal(record.id)}>Add Notes</button>
                   <button className="btn-primary" onClick={() => handleMarkComplete(record.id)}>Mark Complete</button>
                 </>
               )}
               {record.status === 'completed' && (
-                <button className="btn-secondary">View Report</button>
+                <button className="btn-secondary" onClick={() => setShowReportId(record.id)}>View Report</button>
               )}
               {record.status === 'overdue' && (
                 <>
@@ -443,6 +496,105 @@ const Maintenance: React.FC = () => {
       </div>
 
       {/* Schedule Maintenance Modal */}
+      {/* Add Notes Modal */}
+      {showNoteModal.open && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Add Notes</h3>
+              <button className="modal-close" onClick={handleCloseNoteModal}>×</button>
+            </div>
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea
+                rows={4}
+                placeholder="Enter notes for this maintenance job..."
+                value={noteInput}
+                onChange={e => setNoteInput(e.target.value)}
+              ></textarea>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={handleCloseNoteModal}>Cancel</button>
+              <button className="btn-primary" onClick={handleSaveNote}>Save Note</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Show Note Modal */}
+      {/* View Report Modal */}
+      {showReportId && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Maintenance Report</h3>
+              <button className="modal-close" onClick={() => setShowReportId(null)}>×</button>
+            </div>
+            {(() => {
+              const record = maintenanceRecords.find(r => r.id === showReportId);
+              if (!record) return null;
+              return (
+                <div>
+                  <div className="form-group">
+                    <label>Asset</label>
+                    <div className="show-note-content">{record.assetId} - {record.assetType}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <div className="show-note-content">{record.description}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Type</label>
+                    <div className="show-note-content">{record.type.charAt(0).toUpperCase() + record.type.slice(1)}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Priority</label>
+                    <div className="show-note-content">{record.priority.charAt(0).toUpperCase() + record.priority.slice(1)}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Scheduled Date</label>
+                    <div className="show-note-content">{new Date(record.scheduledDate).toLocaleDateString()}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Completed Date</label>
+                    <div className="show-note-content">{record.completedDate ? new Date(record.completedDate).toLocaleDateString() : '-'}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Technician</label>
+                    <div className="show-note-content">{record.technician || '-'}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Notes</label>
+                    <div className="show-note-content" style={{whiteSpace: 'pre-wrap'}}>{notes[record.id] || 'No notes added.'}</div>
+                  </div>
+                </div>
+              );
+            })()}
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={() => setShowReportId(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showingNoteId && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Maintenance Note</h3>
+              <button className="modal-close" onClick={handleCloseShowNote}>×</button>
+            </div>
+            <div className="form-group">
+              <label>Note</label>
+              <div className="show-note-content" style={{whiteSpace: 'pre-wrap'}}>
+                {notes[showingNoteId]}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={handleCloseShowNote}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showScheduleModal && (
         <div className="modal-overlay">
           <div className="modal-content">
