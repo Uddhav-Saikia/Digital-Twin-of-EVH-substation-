@@ -1,3 +1,35 @@
+/* DGA Analysis Result Boxes */
+.analysis-box {
+  padding: 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.duval-box {
+  background: #dcfce7;
+  color: #166534;
+}
+.rogers-box {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.trend-box {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.dark .duval-box {
+  background: #166534;
+  color: #e0ffe0;
+}
+.dark .rogers-box {
+  background: #1e40af;
+  color: #dbeafe;
+}
+.dark .trend-box {
+  background: #166534;
+  color: #e0ffe0;
+}
 /* Show Note Modal Content */
 .show-note-content {
   background: #f3f4f6;

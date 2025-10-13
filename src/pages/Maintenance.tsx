@@ -46,6 +46,12 @@ const Maintenance: React.FC = () => {
   const [noteInput, setNoteInput] = useState('');
   const [showingNoteId, setShowingNoteId] = useState<string | null>(null);
   const [showReportId, setShowReportId] = useState<string | null>(null);
+  
+  // Remote diagnostics modals
+  const [showTestConsole, setShowTestConsole] = useState(false);
+  const [showDGADashboard, setShowDGADashboard] = useState(false);
+  const [testRunning, setTestRunning] = useState(false);
+  const [testLogs, setTestLogs] = useState<string[]>([]);
 
   // Persist records and notes to localStorage
   React.useEffect(() => {
@@ -460,7 +466,7 @@ const Maintenance: React.FC = () => {
           <div className="diagnostic-card">
             <h3>Online Testing Capability</h3>
             <p>Perform remote relay testing and calibration without site visits</p>
-            <button className="btn-secondary">Launch Test Console</button>
+            <button className="btn-secondary" onClick={() => setShowTestConsole(true)}>Launch Test Console</button>
             <div className="tech-note">
               <strong>Requires:</strong> IEC 61850 client, relay testing automation scripts, secure VPN access
             </div>
@@ -469,29 +475,12 @@ const Maintenance: React.FC = () => {
           <div className="diagnostic-card">
             <h3>DGA Analysis Dashboard</h3>
             <p>Monitor dissolved gas analysis results and trends for transformers</p>
-            <button className="btn-secondary">View DGA Reports</button>
+            <button className="btn-secondary" onClick={() => setShowDGADashboard(true)}>View DGA Reports</button>
             <div className="tech-note">
               <strong>Requires:</strong> Lab data integration API, Duval Triangle visualization, alert thresholds
             </div>
           </div>
 
-          <div className="diagnostic-card">
-            <h3>Thermal Imaging Analysis</h3>
-            <p>Analyze infrared thermography data for hotspot detection</p>
-            <button className="btn-secondary">View Thermal Images</button>
-            <div className="tech-note">
-              <strong>Requires:</strong> FLIR camera data import, temperature differential analysis, annotation tools
-            </div>
-          </div>
-
-          <div className="diagnostic-card">
-            <h3>Partial Discharge Monitoring</h3>
-            <p>Real-time partial discharge detection and pattern analysis</p>
-            <button className="btn-secondary">View PD Patterns</button>
-            <div className="tech-note">
-              <strong>Requires:</strong> PD sensor integration, PRPD pattern recognition, noise filtering algorithms
-            </div>
-          </div>
         </div>
       </div>
 
@@ -671,32 +660,236 @@ const Maintenance: React.FC = () => {
         </div>
       )}
 
-      {/* Work Order Management */}
-      <div className="placeholder-section">
-        <h3>🔧 Work Order Management System</h3>
-        <div className="placeholder-grid">
-          <div className="placeholder-card">
-            <h4>Mobile Work Orders</h4>
-            <p>Mobile app for technicians with offline capability and photo documentation</p>
-            <span className="tech-note">Requires: React Native/Flutter app, offline sync, cloud storage</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Spare Parts Inventory</h4>
-            <p>Track spare parts availability, automated reordering, and usage history</p>
-            <span className="tech-note">Requires: Inventory database, barcode scanning, ERP integration</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Compliance Tracking</h4>
-            <p>Ensure regulatory compliance and safety procedures are followed</p>
-            <span className="tech-note">Requires: Compliance checklist engine, digital signatures, audit trails</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Vendor Management</h4>
-            <p>Manage external contractors, service agreements, and performance metrics</p>
-            <span className="tech-note">Requires: Vendor portal, SLA monitoring, invoice management</span>
+      {/* Online Testing Console Modal */}
+      {showTestConsole && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{maxWidth: '700px'}}>
+            <div className="modal-header">
+              <h3>Online Testing Console</h3>
+              <button className="modal-close" onClick={() => setShowTestConsole(false)}>×</button>
+            </div>
+            
+            <div className="form-group">
+              <label>Select Relay</label>
+              <select className="form-control">
+                <option value="">Choose relay to test...</option>
+                <option value="relay1">Protection Relay R1 (Bay 1)</option>
+                <option value="relay2">Protection Relay R2 (Bay 2)</option>
+                <option value="relay3">Protection Relay R3 (Transformer)</option>
+                <option value="relay4">Protection Relay R4 (Feeder)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Test Type</label>
+              <select className="form-control">
+                <option value="">Select test type...</option>
+                <option value="pickup">Pickup Test</option>
+                <option value="timing">Timing Test</option>
+                <option value="functional">Functional Test</option>
+                <option value="calibration">Calibration Check</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Test Parameters</label>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'}}>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Current (A)</label>
+                  <input type="number" placeholder="5.0" className="form-control" />
+                </div>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Voltage (V)</label>
+                  <input type="number" placeholder="110" className="form-control" />
+                </div>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Angle (°)</label>
+                  <input type="number" placeholder="0" className="form-control" />
+                </div>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Frequency (Hz)</label>
+                  <input type="number" placeholder="50" className="form-control" />
+                </div>
+              </div>
+            </div>
+
+            {testLogs.length > 0 && (
+              <div className="form-group">
+                <label>Test Execution Log</label>
+                <div className="show-note-content" style={{
+                  maxHeight: '200px', 
+                  overflowY: 'auto', 
+                  fontFamily: 'monospace', 
+                  fontSize: '12px',
+                  whiteSpace: 'pre-wrap'
+                }}>
+                  {testLogs.join('\n')}
+                </div>
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowTestConsole(false)}>Close</button>
+              <button 
+                className="btn-primary" 
+                onClick={() => {
+                  setTestRunning(true);
+                  setTestLogs([
+                    '[INFO] Connecting to relay via IEC 61850...',
+                    '[INFO] Connection established successfully',
+                    '[INFO] Reading relay configuration...',
+                    '[INFO] Starting test sequence...',
+                    '[TEST] Applying test current: 5.0 A',
+                    '[TEST] Measuring pickup value: 4.98 A',
+                    '[TEST] Measuring trip time: 125 ms',
+                    '[PASS] Pickup test completed successfully',
+                    '[INFO] Test results saved to database',
+                    '[INFO] Disconnecting from relay...'
+                  ]);
+                  setTimeout(() => setTestRunning(false), 3000);
+                }}
+                disabled={testRunning}
+              >
+                {testRunning ? 'Running Test...' : 'Execute Test'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* DGA Analysis Dashboard Modal */}
+      {showDGADashboard && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{maxWidth: '800px'}}>
+            <div className="modal-header">
+              <h3>DGA Analysis Dashboard</h3>
+              <button className="modal-close" onClick={() => setShowDGADashboard(false)}>×</button>
+            </div>
+            
+            <div className="form-group">
+              <label>Select Transformer</label>
+              <select className="form-control">
+                <option value="">Choose transformer...</option>
+                <option value="t1">TXF-001 - Main Power Transformer</option>
+                <option value="t2">TXF-002 - Station Transformer</option>
+                <option value="t3">TXF-003 - Reserve Transformer</option>
+              </select>
+            </div>
+
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px'}}>
+              <div className="show-note-content">
+                <h4 style={{marginTop: 0, marginBottom: '8px', fontSize: '14px'}}>Latest Sample (Dec 2024)</h4>
+                <div style={{fontSize: '13px'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>H₂ (Hydrogen):</span>
+                    <strong>45 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>CH₄ (Methane):</span>
+                    <strong>12 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>C₂H₆ (Ethane):</span>
+                    <strong>8 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>C₂H₄ (Ethylene):</span>
+                    <strong>15 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>C₂H₂ (Acetylene):</span>
+                    <strong>2 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>CO (Carbon Monoxide):</span>
+                    <strong>320 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                    <span>CO₂ (Carbon Dioxide):</span>
+                    <strong>2400 ppm</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="show-note-content">
+                <h4 style={{marginTop: 0, marginBottom: '8px', fontSize: '14px'}}>Analysis Results</h4>
+                <div style={{fontSize: '13px'}}>
+                  <div style={{marginBottom: '8px'}}>
+                    <strong>Duval Triangle:</strong>
+                    <div className="analysis-box duval-box">
+                      Zone: PD (Partial Discharge)
+                    </div>
+                  </div>
+                  <div style={{marginBottom: '8px'}}>
+                    <strong>Rogers Ratio:</strong>
+                    <div className="analysis-box rogers-box">
+                      Normal Aging
+                    </div>
+                  </div>
+                  <div>
+                    <strong>Trend Status:</strong>
+                    <div className="analysis-box trend-box">
+                      Stable - No Action Required
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Historical Trend (Last 12 Months)</label>
+              <div className="show-note-content" style={{padding: '20px', textAlign: 'center'}}>
+                <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '12px'}}>
+                  Gas Concentration Trends
+                </div>
+                <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '120px', borderBottom: '2px solid #d1d5db'}}>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '60px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Jan</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '65px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Apr</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '70px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Jul</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '75px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Oct</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#22c55e', height: '72px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Dec</span>
+                  </div>
+                </div>
+                <div style={{fontSize: '11px', color: '#6b7280', marginTop: '8px'}}>
+                  Total Combustible Gas (TCG) in ppm
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Recommendations</label>
+              <div className="show-note-content">
+                <ul style={{margin: 0, paddingLeft: '20px', fontSize: '13px'}}>
+                  <li>Continue routine DGA monitoring every 3 months</li>
+                  <li>Gas levels within acceptable limits for transformer age</li>
+                  <li>No immediate maintenance action required</li>
+                  <li>Next scheduled analysis: March 2025</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowDGADashboard(false)}>Close</button>
+              <button className="btn-primary">Export Report</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
