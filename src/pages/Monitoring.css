@@ -32,6 +32,16 @@ input[type="checkbox"]:checked + .toggle-slider { background: #3b82f6; }
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 .metric-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f3f4f6; color: #374151; }
+
+/* Keep icon colors in dark mode */
+.dark .metric-icon {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .metric-icon svg {
+  color: inherit !important;
+}
+
 .metric-content { flex: 1; }
 .metric-label { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
 
@@ -165,3 +175,528 @@ input[type="checkbox"]:checked + .toggle-slider { background: #3b82f6; }
 .severity-badge.critical { background: #ef4444; color: white; }
 .severity-badge.high { background: #f59e0b; color: white; }
 .ack-button { padding: 6px 12px; background: white; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; cursor: pointer; }
+
+/* Data Ingestion Section */
+.data-ingestion-section {
+  margin-bottom: 32px;
+}
+
+.data-ingestion-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 20px;
+}
+
+.dark .data-ingestion-section h2 {
+  color: #ffffff;
+}
+
+.ingestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.ingestion-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 16px;
+  border-left: 4px solid #3b82f6;
+  transition: all 0.2s;
+}
+
+.ingestion-card.clickable {
+  cursor: pointer;
+}
+
+.ingestion-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dark .ingestion-card {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ingestion-card.scada {
+  border-left-color: #3b82f6;
+}
+
+.ingestion-card.iot {
+  border-left-color: #8b5cf6;
+}
+
+.ingestion-card.database {
+  border-left-color: #10b981;
+}
+
+.ingestion-card.summary {
+  border-left-color: #f59e0b;
+}
+
+.ingestion-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  flex-shrink: 0;
+}
+
+.dark .ingestion-icon {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.ingestion-card.scada .ingestion-icon {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+.dark .ingestion-card.scada .ingestion-icon {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.ingestion-card.iot .ingestion-icon {
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.dark .ingestion-card.iot .ingestion-icon {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.ingestion-card.database .ingestion-icon {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.dark .ingestion-card.database .ingestion-icon {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.ingestion-card.summary .ingestion-icon {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.dark .ingestion-card.summary .ingestion-icon {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.ingestion-content {
+  flex: 1;
+}
+
+.ingestion-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.dark .ingestion-content h3 {
+  color: #ffffff;
+}
+
+.ingestion-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #22c55e;
+  margin-bottom: 12px;
+}
+
+.ingestion-status.online {
+  color: #22c55e;
+}
+
+.ingestion-status.offline {
+  color: #ef4444;
+}
+
+.ingestion-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.stat-label {
+  color: #6b7280;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dark .stat-label {
+  color: #9ca3af;
+}
+
+.stat-value {
+  color: #111827;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: right;
+  word-break: break-word;
+}
+
+.dark .stat-value {
+  color: #ffffff;
+}
+
+.sensor-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-item.online {
+  color: #22c55e;
+}
+
+.summary-item.warning {
+  color: #f59e0b;
+}
+
+.summary-item.offline {
+  color: #ef4444;
+}
+
+/* Updated Sensor Section Header */
+.sensor-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sensor-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-btn {
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dark .filter-btn {
+  background: #374151;
+  border-color: #4b5563;
+  color: #ffffff;
+}
+
+.filter-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.dark .filter-btn:hover {
+  background: #4b5563;
+  border-color: #6b7280;
+}
+
+.filter-btn.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.dark .filter-btn.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+/* Updated Sensor Cards */
+.sensor-card .sensor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sensor-card .sensor-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .sensor-card .sensor-title {
+  color: #ffffff;
+}
+
+.sensor-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.sensor-badge.scada {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+.dark .sensor-badge.scada {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.sensor-badge.iot {
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.dark .sensor-badge.iot {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+}
+
+.sensor-info {
+  margin-bottom: 12px;
+}
+
+.sensor-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.dark .sensor-name {
+  color: #ffffff;
+}
+
+.sensor-location {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dark .sensor-location {
+  color: #9ca3af;
+}
+
+.sensor-threshold {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.dark .sensor-threshold {
+  color: #9ca3af;
+}
+
+.sensor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dark .sensor-footer {
+  border-top-color: #374151;
+}
+
+.sensor-status-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.sensor-status-badge.online {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.dark .sensor-status-badge.online {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.sensor-status-badge.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.dark .sensor-status-badge.warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.sensor-status-badge.offline {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.dark .sensor-status-badge.offline {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+/* No Alerts State */
+.no-alerts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.dark .no-alerts {
+  color: #9ca3af;
+}
+
+.no-alerts svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.no-alerts p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Ingestion Modal */
+.ingestion-modal-content {
+  max-width: 800px;
+  width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.ingestion-modal-body {
+  padding: 0;
+}
+
+.detail-section {
+  margin-bottom: 28px;
+}
+
+.detail-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.dark .detail-section h4 {
+  color: #ffffff;
+  border-bottom-color: #374151;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.dark .detail-item {
+  background: #374151;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.dark .detail-label {
+  color: #9ca3af;
+}
+
+.detail-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .detail-value {
+  color: #ffffff;
+}
+
+.detail-value.status-online {
+  color: #22c55e;
+}
+
+.parameter-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.parameter-list li {
+  padding: 10px 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #374151;
+  position: relative;
+  padding-left: 30px;
+}
+
+.dark .parameter-list li {
+  background: #374151;
+  color: #d1d5db;
+}
+
+.parameter-list li:before {
+  content: "•";
+  position: absolute;
+  left: 12px;
+  color: #3b82f6;
+  font-size: 18px;
+  font-weight: bold;
+}

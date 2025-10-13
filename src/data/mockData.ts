@@ -167,7 +167,7 @@ export const mockTransformers: Transformer[] = [
       {
         id: 'ALT-T1-001',
         severity: 'medium',
-        message: 'Oil temperature trending upward',
+        message: 'Transformer TXF-001 oil temperature trending upward',
         timestamp: '2025-10-02T08:30:00Z',
         acknowledged: false
       }
@@ -235,9 +235,9 @@ export const mockCircuitBreakers: CircuitBreaker[] = [
       {
         id: 'ALT-CB-001',
         severity: 'low',
-        message: 'Approaching maintenance cycle threshold',
+        message: 'Circuit Breaker CB-001 approaching maintenance cycle threshold',
         timestamp: '2025-10-01T10:00:00Z',
-        acknowledged: true
+        acknowledged: false
       }
     ]
   },
@@ -261,7 +261,7 @@ export const mockCircuitBreakers: CircuitBreaker[] = [
       {
         id: 'ALT-CB-002',
         severity: 'high',
-        message: 'Contact wear exceeds 20% threshold',
+        message: 'Circuit Breaker CB-002 contact wear exceeds 20% threshold',
         timestamp: '2025-10-02T06:45:00Z',
         acknowledged: false
       }
@@ -522,7 +522,7 @@ export const mockMaintenanceRecords: MaintenanceRecord[] = [
     type: 'corrective',
     status: 'scheduled',
     scheduledDate: '2025-10-15',
-    description: 'Contact replacement due to excessive wear',
+    description: 'Maintenance scheduled: Contact replacement for CB-002 due to excessive wear',
     priority: 'high'
   },
   {
@@ -545,7 +545,7 @@ export const mockMaintenanceRecords: MaintenanceRecord[] = [
     status: 'in-progress',
     scheduledDate: '2025-10-05',
     technician: 'Sarah Johnson',
-    description: 'DGA analysis showing elevated hydrogen levels',
+    description: 'Transformer TXF-002 DGA analysis shows elevated hydrogen levels - Maintenance required',
     priority: 'critical'
   }
 ];
@@ -596,77 +596,42 @@ export const mockSimulationScenarios: SimulationScenario[] = [
   }
 ];
 
-// System-wide alerts
+// System-wide alerts - synchronized with asset alerts
 export const mockSystemAlerts: Alert[] = [
   {
     id: 'SYS-ALT-001',
     severity: 'high',
-    message: 'Circuit Breaker CB-002 contact wear exceeds threshold',
+    message: 'Circuit Breaker CB-002 contact wear exceeds 20% threshold',
     timestamp: '2025-10-02T06:45:00Z',
     acknowledged: false
   },
   {
     id: 'SYS-ALT-002',
     severity: 'medium',
-    message: 'Transformer T1 oil temperature trending upward',
+    message: 'Transformer TXF-001 oil temperature trending upward',
     timestamp: '2025-10-02T08:30:00Z',
     acknowledged: false
   },
   {
     id: 'SYS-ALT-003',
     severity: 'low',
-    message: 'Scheduled maintenance due for Protection System PROT-003',
-    timestamp: '2025-10-01T00:00:00Z',
-    acknowledged: true
+    message: 'Circuit Breaker CB-001 approaching maintenance cycle threshold',
+    timestamp: '2025-10-01T10:00:00Z',
+    acknowledged: false
   },
   {
     id: 'SYS-ALT-004',
     severity: 'critical',
-    message: 'Transformer T2 DGA analysis shows elevated hydrogen',
-    timestamp: '2025-10-01T14:20:00Z',
+    message: 'Transformer TXF-002 DGA analysis shows elevated hydrogen levels - Maintenance required',
+    timestamp: '2025-10-05T14:20:00Z',
     acknowledged: false
   },
   {
     id: 'SYS-ALT-005',
-    severity: 'medium',
-    message: 'Isolator ISO-002 operation count nearing maintenance threshold',
-    timestamp: '2025-09-30T15:30:00Z',
-    acknowledged: true
-  },
-  {
-    id: 'SYS-ALT-006',
-    severity: 'low',
-    message: 'CT-005 secondary current reading slightly elevated',
-    timestamp: '2025-09-30T10:20:00Z',
-    acknowledged: true
-  },
-  {
-    id: 'SYS-ALT-007',
     severity: 'high',
-    message: 'SF6 pressure in CB-001 trending downward',
-    timestamp: '2025-09-29T18:45:00Z',
+    message: 'Maintenance scheduled: Contact replacement for CB-002 due to excessive wear',
+    timestamp: '2025-10-05T00:00:00Z',
     acknowledged: false
-  },
-  {
-    id: 'SYS-ALT-008',
-    severity: 'critical',
-    message: 'Protection relay PROT-001 self-test failure',
-    timestamp: '2025-09-29T09:15:00Z',
-    acknowledged: false
-  },
-  {
-    id: 'SYS-ALT-009',
-    severity: 'medium',
-    message: 'Bus voltage fluctuation detected on 220kV bus',
-    timestamp: '2025-09-28T21:00:00Z',
-    acknowledged: true
-  },
-  {
-    id: 'SYS-ALT-010',
-    severity: 'low',
-    message: 'Routine inspection scheduled for Bay 3 equipment',
-    timestamp: '2025-09-28T08:00:00Z',
-    acknowledged: true
   }
 ];
 

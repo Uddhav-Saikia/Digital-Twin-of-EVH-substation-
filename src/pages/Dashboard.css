@@ -90,6 +90,11 @@
   flex-shrink: 0;
 }
 
+/* Keep icon colors in dark mode */
+.dark .kpi-icon svg {
+  color: inherit !important;
+}
+
 .kpi-content {
   flex: 1;
 }
@@ -266,6 +271,11 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
+}
+
+/* Keep icon colors in dark mode */
+.dark .qac-icon svg {
+  color: inherit !important;
 }
 
 .quick-access-card h3 {

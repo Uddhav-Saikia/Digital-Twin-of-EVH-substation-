@@ -1,0 +1,60 @@
+/* CustomTooltip.css - Dark mode compatible Recharts tooltip */
+.custom-tooltip {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+}
+
+.dark .custom-tooltip {
+  background: #1f2937;
+  border-color: #4b5563;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .tooltip-label {
+  color: #ffffff;
+  border-bottom-color: #4b5563;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tooltip-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.tooltip-name {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.dark .tooltip-name {
+  color: #d1d5db !important;
+}
+
+.tooltip-value {
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .tooltip-value {
+  color: #ffffff;
+}
