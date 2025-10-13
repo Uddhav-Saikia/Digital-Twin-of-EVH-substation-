@@ -349,7 +349,7 @@ input[type="checkbox"]:checked + .toggle-slider { background: #3b82f6; }
 .stat-value {
   color: #111827;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 14px !important;
   text-align: right;
   word-break: break-word;
 }

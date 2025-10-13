@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Play, Copy, Trash2, Settings, AlertTriangle, X } from 'lucide-react';
 import { mockSimulationScenarios } from '../data/mockData';
 import './Simulation.css';
@@ -14,6 +15,7 @@ interface SimulationScenario {
 }
 
 const Simulation: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [runningScenarioId, setRunningScenarioId] = useState<string | null>(null);
@@ -554,6 +556,7 @@ const Simulation: React.FC = () => {
       </div>
 
       {/* Placeholder Section */}
+      {/*
       <div className="placeholder-section">
         <h3>⚡ Advanced Simulation Capabilities</h3>
         <div className="placeholder-grid">
@@ -589,6 +592,7 @@ const Simulation: React.FC = () => {
           </div>
         </div>
       </div>
+      */}
 
       {/* Training Module */}
       <div className="training-module">
@@ -604,7 +608,7 @@ const Simulation: React.FC = () => {
               <div className="lesson-item">✓ SCADA navigation</div>
               <div className="lesson-item">✓ Alarm acknowledgment</div>
             </div>
-            <button className="btn-secondary">Start Training</button>
+              <button className="btn-secondary" onClick={() => navigate('/training')}>Start Training</button>
           </div>
 
           <div className="training-card">
@@ -617,7 +621,7 @@ const Simulation: React.FC = () => {
               <div className="lesson-item">✓ Line energization</div>
               <div className="lesson-item">✓ Synchronization checks</div>
             </div>
-            <button className="btn-secondary">Start Training</button>
+              <button className="btn-secondary" onClick={() => navigate('/training')}>Start Training</button>
           </div>
 
           <div className="training-card">
@@ -630,7 +634,7 @@ const Simulation: React.FC = () => {
               <div className="lesson-item">✓ Black start procedures</div>
               <div className="lesson-item">✓ Emergency load shedding</div>
             </div>
-            <button className="btn-secondary">Start Training</button>
+              <button className="btn-secondary" onClick={() => navigate('/training')}>Start Training</button>
           </div>
         </div>
       </div>

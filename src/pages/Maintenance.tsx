@@ -22,7 +22,19 @@ const Maintenance: React.FC = () => {
   const [filter, setFilter] = useState<MaintenanceFilter>('all');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(mockMaintenanceRecords);
+  // LocalStorage keys
+  const LS_RECORDS_KEY = 'maintenanceRecords';
+  const LS_NOTES_KEY = 'maintenanceNotes';
+
+  // Load from localStorage
+  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(() => {
+    const saved = localStorage.getItem(LS_RECORDS_KEY);
+    return saved ? JSON.parse(saved) : mockMaintenanceRecords;
+  });
+  const [notes, setNotes] = useState<{ [id: string]: string }>(() => {
+    const saved = localStorage.getItem(LS_NOTES_KEY);
+    return saved ? JSON.parse(saved) : {};
+  });
   const [formData, setFormData] = useState({
     assetId: '',
     type: '',
@@ -30,6 +42,28 @@ const Maintenance: React.FC = () => {
     scheduledDate: '',
     description: ''
   });
+  const [showNoteModal, setShowNoteModal] = useState<{ open: boolean; jobId: string | null }>({ open: false, jobId: null });
+  const [noteInput, setNoteInput] = useState('');
+  const [showingNoteId, setShowingNoteId] = useState<string | null>(null);
+  const [showReportId, setShowReportId] = useState<string | null>(null);
+  
+  // Remote diagnostics modals
+  const [showTestConsole, setShowTestConsole] = useState(false);
+  const [showDGADashboard, setShowDGADashboard] = useState(false);
+  const [testRunning, setTestRunning] = useState(false);
+  const [testLogs, setTestLogs] = useState<string[]>([]);
+  
+  // Calendar functionality
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showDayDetails, setShowDayDetails] = useState(false);
+
+  // Persist records and notes to localStorage
+  React.useEffect(() => {
+    localStorage.setItem(LS_RECORDS_KEY, JSON.stringify(maintenanceRecords));
+  }, [maintenanceRecords]);
+  React.useEffect(() => {
+    localStorage.setItem(LS_NOTES_KEY, JSON.stringify(notes));
+  }, [notes]);
   
   const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -139,35 +173,69 @@ const Maintenance: React.FC = () => {
     
     // Previous month days
     const prevMonthLastDay = new Date(year, month, 0).getDate();
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const day = prevMonthLastDay - i;
+      const date = new Date(prevYear, prevMonth, day);
+      const maintenanceCount = getMaintenanceForDate(date).length;
       days.push({
-        day: prevMonthLastDay - i,
+        day,
+        date,
         isCurrentMonth: false,
-        hasEvent: false
+        hasEvent: maintenanceCount > 0,
+        maintenanceCount
       });
     }
     
-    // Current month days
-    const maintenanceDates = [10, 15, 25]; // Sample maintenance dates
+    // Current month days - check actual maintenance records
     for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const maintenanceCount = getMaintenanceForDate(date).length;
       days.push({
         day,
+        date,
         isCurrentMonth: true,
-        hasEvent: maintenanceDates.includes(day)
+        hasEvent: maintenanceCount > 0,
+        maintenanceCount
       });
     }
     
     // Next month days to fill the grid
     const remainingDays = 35 - days.length;
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    
     for (let day = 1; day <= remainingDays; day++) {
+      const date = new Date(nextYear, nextMonth, day);
+      const maintenanceCount = getMaintenanceForDate(date).length;
       days.push({
         day,
+        date,
         isCurrentMonth: false,
-        hasEvent: false
+        hasEvent: maintenanceCount > 0,
+        maintenanceCount
       });
     }
     
     return days;
+  };
+
+  const getMaintenanceForDate = (date: Date) => {
+    return maintenanceRecords.filter(record => {
+      const recordDate = new Date(record.scheduledDate);
+      return recordDate.getDate() === date.getDate() &&
+             recordDate.getMonth() === date.getMonth() &&
+             recordDate.getFullYear() === date.getFullYear();
+    });
+  };
+
+  const handleDayClick = (dayInfo: any) => {
+    if (dayInfo.hasEvent) {
+      setSelectedDate(dayInfo.date);
+      setShowDayDetails(true);
+    }
   };
 
   const handleStartWork = (id: string) => {
@@ -184,6 +252,29 @@ const Maintenance: React.FC = () => {
         completedDate: new Date().toISOString() 
       } : record
     ));
+  };
+
+  // Notes logic
+  const handleOpenNoteModal = (id: string) => {
+    setShowNoteModal({ open: true, jobId: id });
+    setNoteInput(notes[id] || '');
+  };
+  const handleCloseNoteModal = () => {
+    setShowNoteModal({ open: false, jobId: null });
+    setNoteInput('');
+  };
+  const handleSaveNote = () => {
+    if (showNoteModal.jobId) {
+      setNotes({ ...notes, [showNoteModal.jobId]: noteInput });
+      setShowNoteModal({ open: false, jobId: null });
+      setNoteInput('');
+    }
+  };
+  const handleShowNote = (id: string) => {
+    setShowingNoteId(id);
+  };
+  const handleCloseShowNote = () => {
+    setShowingNoteId(null);
   };
 
   const handleDeleteRecord = (id: string) => {
@@ -322,6 +413,12 @@ const Maintenance: React.FC = () => {
                     <span>{record.technician}</span>
                   </div>
                 )}
+                {/* Show Note button if note exists */}
+                {notes[record.id] && (
+                  <div className="meta-item">
+                    <button className="btn-secondary" onClick={() => handleShowNote(record.id)}>Show Note</button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -334,12 +431,12 @@ const Maintenance: React.FC = () => {
               )}
               {record.status === 'in-progress' && (
                 <>
-                  <button className="btn-secondary">Add Notes</button>
+                  <button className="btn-secondary" onClick={() => handleOpenNoteModal(record.id)}>Add Notes</button>
                   <button className="btn-primary" onClick={() => handleMarkComplete(record.id)}>Mark Complete</button>
                 </>
               )}
               {record.status === 'completed' && (
-                <button className="btn-secondary">View Report</button>
+                <button className="btn-secondary" onClick={() => setShowReportId(record.id)}>View Report</button>
               )}
               {record.status === 'overdue' && (
                 <>
@@ -376,9 +473,16 @@ const Maintenance: React.FC = () => {
                 <div 
                   key={index} 
                   className={`calendar-day ${dayInfo.isCurrentMonth ? 'current-month' : 'other-month'} ${dayInfo.hasEvent ? 'has-event' : ''}`}
+                  onClick={() => handleDayClick(dayInfo)}
+                  style={{ cursor: dayInfo.hasEvent ? 'pointer' : 'default' }}
                 >
                   <span className="day-number">{dayInfo.day}</span>
-                  {dayInfo.hasEvent && <div className="event-dot"></div>}
+                  {dayInfo.hasEvent && (
+                    <>
+                      <div className="event-dot"></div>
+                      <span className="maintenance-count">{dayInfo.maintenanceCount}</span>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -407,7 +511,7 @@ const Maintenance: React.FC = () => {
           <div className="diagnostic-card">
             <h3>Online Testing Capability</h3>
             <p>Perform remote relay testing and calibration without site visits</p>
-            <button className="btn-secondary">Launch Test Console</button>
+            <button className="btn-secondary" onClick={() => setShowTestConsole(true)}>Launch Test Console</button>
             <div className="tech-note">
               <strong>Requires:</strong> IEC 61850 client, relay testing automation scripts, secure VPN access
             </div>
@@ -416,33 +520,115 @@ const Maintenance: React.FC = () => {
           <div className="diagnostic-card">
             <h3>DGA Analysis Dashboard</h3>
             <p>Monitor dissolved gas analysis results and trends for transformers</p>
-            <button className="btn-secondary">View DGA Reports</button>
+            <button className="btn-secondary" onClick={() => setShowDGADashboard(true)}>View DGA Reports</button>
             <div className="tech-note">
               <strong>Requires:</strong> Lab data integration API, Duval Triangle visualization, alert thresholds
             </div>
           </div>
 
-          <div className="diagnostic-card">
-            <h3>Thermal Imaging Analysis</h3>
-            <p>Analyze infrared thermography data for hotspot detection</p>
-            <button className="btn-secondary">View Thermal Images</button>
-            <div className="tech-note">
-              <strong>Requires:</strong> FLIR camera data import, temperature differential analysis, annotation tools
-            </div>
-          </div>
-
-          <div className="diagnostic-card">
-            <h3>Partial Discharge Monitoring</h3>
-            <p>Real-time partial discharge detection and pattern analysis</p>
-            <button className="btn-secondary">View PD Patterns</button>
-            <div className="tech-note">
-              <strong>Requires:</strong> PD sensor integration, PRPD pattern recognition, noise filtering algorithms
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Schedule Maintenance Modal */}
+      {/* Add Notes Modal */}
+      {showNoteModal.open && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Add Notes</h3>
+              <button className="modal-close" onClick={handleCloseNoteModal}>×</button>
+            </div>
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea
+                rows={4}
+                placeholder="Enter notes for this maintenance job..."
+                value={noteInput}
+                onChange={e => setNoteInput(e.target.value)}
+              ></textarea>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={handleCloseNoteModal}>Cancel</button>
+              <button className="btn-primary" onClick={handleSaveNote}>Save Note</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Show Note Modal */}
+      {/* View Report Modal */}
+      {showReportId && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Maintenance Report</h3>
+              <button className="modal-close" onClick={() => setShowReportId(null)}>×</button>
+            </div>
+            {(() => {
+              const record = maintenanceRecords.find(r => r.id === showReportId);
+              if (!record) return null;
+              return (
+                <div>
+                  <div className="form-group">
+                    <label>Asset</label>
+                    <div className="show-note-content">{record.assetId} - {record.assetType}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <div className="show-note-content">{record.description}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Type</label>
+                    <div className="show-note-content">{record.type.charAt(0).toUpperCase() + record.type.slice(1)}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Priority</label>
+                    <div className="show-note-content">{record.priority.charAt(0).toUpperCase() + record.priority.slice(1)}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Scheduled Date</label>
+                    <div className="show-note-content">{new Date(record.scheduledDate).toLocaleDateString()}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Completed Date</label>
+                    <div className="show-note-content">{record.completedDate ? new Date(record.completedDate).toLocaleDateString() : '-'}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Technician</label>
+                    <div className="show-note-content">{record.technician || '-'}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Notes</label>
+                    <div className="show-note-content" style={{whiteSpace: 'pre-wrap'}}>{notes[record.id] || 'No notes added.'}</div>
+                  </div>
+                </div>
+              );
+            })()}
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={() => setShowReportId(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showingNoteId && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Maintenance Note</h3>
+              <button className="modal-close" onClick={handleCloseShowNote}>×</button>
+            </div>
+            <div className="form-group">
+              <label>Note</label>
+              <div className="show-note-content" style={{whiteSpace: 'pre-wrap'}}>
+                {notes[showingNoteId]}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={handleCloseShowNote}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showScheduleModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -519,32 +705,319 @@ const Maintenance: React.FC = () => {
         </div>
       )}
 
-      {/* Work Order Management */}
-      <div className="placeholder-section">
-        <h3>🔧 Work Order Management System</h3>
-        <div className="placeholder-grid">
-          <div className="placeholder-card">
-            <h4>Mobile Work Orders</h4>
-            <p>Mobile app for technicians with offline capability and photo documentation</p>
-            <span className="tech-note">Requires: React Native/Flutter app, offline sync, cloud storage</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Spare Parts Inventory</h4>
-            <p>Track spare parts availability, automated reordering, and usage history</p>
-            <span className="tech-note">Requires: Inventory database, barcode scanning, ERP integration</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Compliance Tracking</h4>
-            <p>Ensure regulatory compliance and safety procedures are followed</p>
-            <span className="tech-note">Requires: Compliance checklist engine, digital signatures, audit trails</span>
-          </div>
-          <div className="placeholder-card">
-            <h4>Vendor Management</h4>
-            <p>Manage external contractors, service agreements, and performance metrics</p>
-            <span className="tech-note">Requires: Vendor portal, SLA monitoring, invoice management</span>
+      {/* Online Testing Console Modal */}
+      {showTestConsole && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{maxWidth: '700px'}}>
+            <div className="modal-header">
+              <h3>Online Testing Console</h3>
+              <button className="modal-close" onClick={() => setShowTestConsole(false)}>×</button>
+            </div>
+            
+            <div className="form-group">
+              <label>Select Relay</label>
+              <select className="form-control">
+                <option value="">Choose relay to test...</option>
+                <option value="relay1">Protection Relay R1 (Bay 1)</option>
+                <option value="relay2">Protection Relay R2 (Bay 2)</option>
+                <option value="relay3">Protection Relay R3 (Transformer)</option>
+                <option value="relay4">Protection Relay R4 (Feeder)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Test Type</label>
+              <select className="form-control">
+                <option value="">Select test type...</option>
+                <option value="pickup">Pickup Test</option>
+                <option value="timing">Timing Test</option>
+                <option value="functional">Functional Test</option>
+                <option value="calibration">Calibration Check</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Test Parameters</label>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'}}>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Current (A)</label>
+                  <input type="number" placeholder="5.0" className="form-control" />
+                </div>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Voltage (V)</label>
+                  <input type="number" placeholder="110" className="form-control" />
+                </div>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Angle (°)</label>
+                  <input type="number" placeholder="0" className="form-control" />
+                </div>
+                <div>
+                  <label style={{fontSize: '12px', marginBottom: '4px'}}>Frequency (Hz)</label>
+                  <input type="number" placeholder="50" className="form-control" />
+                </div>
+              </div>
+            </div>
+
+            {testLogs.length > 0 && (
+              <div className="form-group">
+                <label>Test Execution Log</label>
+                <div className="show-note-content" style={{
+                  maxHeight: '200px', 
+                  overflowY: 'auto', 
+                  fontFamily: 'monospace', 
+                  fontSize: '12px',
+                  whiteSpace: 'pre-wrap'
+                }}>
+                  {testLogs.join('\n')}
+                </div>
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowTestConsole(false)}>Close</button>
+              <button 
+                className="btn-primary" 
+                onClick={() => {
+                  setTestRunning(true);
+                  setTestLogs([
+                    '[INFO] Connecting to relay via IEC 61850...',
+                    '[INFO] Connection established successfully',
+                    '[INFO] Reading relay configuration...',
+                    '[INFO] Starting test sequence...',
+                    '[TEST] Applying test current: 5.0 A',
+                    '[TEST] Measuring pickup value: 4.98 A',
+                    '[TEST] Measuring trip time: 125 ms',
+                    '[PASS] Pickup test completed successfully',
+                    '[INFO] Test results saved to database',
+                    '[INFO] Disconnecting from relay...'
+                  ]);
+                  setTimeout(() => setTestRunning(false), 3000);
+                }}
+                disabled={testRunning}
+              >
+                {testRunning ? 'Running Test...' : 'Execute Test'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* DGA Analysis Dashboard Modal */}
+      {showDGADashboard && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{maxWidth: '800px'}}>
+            <div className="modal-header">
+              <h3>DGA Analysis Dashboard</h3>
+              <button className="modal-close" onClick={() => setShowDGADashboard(false)}>×</button>
+            </div>
+            
+            <div className="form-group">
+              <label>Select Transformer</label>
+              <select className="form-control">
+                <option value="">Choose transformer...</option>
+                <option value="t1">TXF-001 - Main Power Transformer</option>
+                <option value="t2">TXF-002 - Station Transformer</option>
+                <option value="t3">TXF-003 - Reserve Transformer</option>
+              </select>
+            </div>
+
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px'}}>
+              <div className="show-note-content">
+                <h4 style={{marginTop: 0, marginBottom: '8px', fontSize: '14px'}}>Latest Sample (Dec 2024)</h4>
+                <div style={{fontSize: '13px'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>H₂ (Hydrogen):</span>
+                    <strong>45 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>CH₄ (Methane):</span>
+                    <strong>12 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>C₂H₆ (Ethane):</span>
+                    <strong>8 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>C₂H₄ (Ethylene):</span>
+                    <strong>15 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>C₂H₂ (Acetylene):</span>
+                    <strong>2 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                    <span>CO (Carbon Monoxide):</span>
+                    <strong>320 ppm</strong>
+                  </div>
+                  <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                    <span>CO₂ (Carbon Dioxide):</span>
+                    <strong>2400 ppm</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="show-note-content">
+                <h4 style={{marginTop: 0, marginBottom: '8px', fontSize: '14px'}}>Analysis Results</h4>
+                <div style={{fontSize: '13px'}}>
+                  <div style={{marginBottom: '8px'}}>
+                    <strong>Duval Triangle:</strong>
+                    <div className="analysis-box duval-box">
+                      Zone: PD (Partial Discharge)
+                    </div>
+                  </div>
+                  <div style={{marginBottom: '8px'}}>
+                    <strong>Rogers Ratio:</strong>
+                    <div className="analysis-box rogers-box">
+                      Normal Aging
+                    </div>
+                  </div>
+                  <div>
+                    <strong>Trend Status:</strong>
+                    <div className="analysis-box trend-box">
+                      Stable - No Action Required
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Historical Trend (Last 12 Months)</label>
+              <div className="show-note-content" style={{padding: '20px', textAlign: 'center'}}>
+                <div style={{fontSize: '13px', color: '#6b7280', marginBottom: '12px'}}>
+                  Gas Concentration Trends
+                </div>
+                <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '120px', borderBottom: '2px solid #d1d5db'}}>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '60px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Jan</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '65px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Apr</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '70px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Jul</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#3b82f6', height: '75px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Oct</span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <div style={{width: '40px', background: '#22c55e', height: '72px', borderRadius: '4px 4px 0 0'}}></div>
+                    <span style={{fontSize: '11px', marginTop: '4px'}}>Dec</span>
+                  </div>
+                </div>
+                <div style={{fontSize: '11px', color: '#6b7280', marginTop: '8px'}}>
+                  Total Combustible Gas (TCG) in ppm
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Recommendations</label>
+              <div className="show-note-content">
+                <ul style={{margin: 0, paddingLeft: '20px', fontSize: '13px'}}>
+                  <li>Continue routine DGA monitoring every 3 months</li>
+                  <li>Gas levels within acceptable limits for transformer age</li>
+                  <li>No immediate maintenance action required</li>
+                  <li>Next scheduled analysis: March 2025</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowDGADashboard(false)}>Close</button>
+              <button className="btn-primary">Export Report</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Day Details Modal */}
+      {showDayDetails && selectedDate && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Maintenance on {selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+              <button className="modal-close" onClick={() => setShowDayDetails(false)}>×</button>
+            </div>
+            <div className="day-details-content">
+              {getMaintenanceForDate(selectedDate).map((record) => (
+                <div key={record.id} className="day-maintenance-card">
+                  <div className="day-maintenance-header">
+                    <div>
+                      <h4>{record.assetId} - {record.assetType}</h4>
+                      <p>{record.description}</p>
+                    </div>
+                    <div className="maintenance-status">
+                      {getStatusIcon(record.status)}
+                      <span className={`status-text ${record.status}`}>{record.status}</span>
+                    </div>
+                  </div>
+                  <div className="day-maintenance-details">
+                    <div className="detail-item">
+                      <span className="detail-label">Type:</span>
+                      <span className={`maintenance-type ${record.type}`}>
+                        {record.type.charAt(0).toUpperCase() + record.type.slice(1)}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Priority:</span>
+                      <span className={`priority-badge ${getPriorityClass(record.priority)}`}>
+                        {record.priority.charAt(0).toUpperCase() + record.priority.slice(1)}
+                      </span>
+                    </div>
+                    {record.technician && (
+                      <div className="detail-item">
+                        <span className="detail-label">Technician:</span>
+                        <span>{record.technician}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="day-maintenance-actions">
+                    {record.status === 'scheduled' && (
+                      <>
+                        <button className="btn-secondary" onClick={() => {
+                          handleStartWork(record.id);
+                          setShowDayDetails(false);
+                        }}>Start Work</button>
+                        <button className="btn-secondary" onClick={() => {
+                          handleDeleteRecord(record.id);
+                          setShowDayDetails(false);
+                        }}>Delete</button>
+                      </>
+                    )}
+                    {record.status === 'in-progress' && (
+                      <>
+                        <button className="btn-secondary" onClick={() => {
+                          setShowDayDetails(false);
+                          handleOpenNoteModal(record.id);
+                        }}>Add Notes</button>
+                        <button className="btn-primary" onClick={() => {
+                          handleMarkComplete(record.id);
+                          setShowDayDetails(false);
+                        }}>Mark Complete</button>
+                      </>
+                    )}
+                    {record.status === 'completed' && (
+                      <button className="btn-secondary" onClick={() => {
+                        setShowDayDetails(false);
+                        setShowReportId(record.id);
+                      }}>View Report</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={() => setShowDayDetails(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

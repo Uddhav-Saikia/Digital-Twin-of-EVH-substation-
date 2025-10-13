@@ -179,7 +179,12 @@
 .dark .config-item span:last-child {
   color: #ffffff;
 }
-.model-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.model-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-start;
+}
 .model-stat { text-align: center; padding: 12px; background: white; border-radius: 6px; border: 1px solid #e5e7eb; }
 
 .dark .model-stat {

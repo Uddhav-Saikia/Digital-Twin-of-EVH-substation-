@@ -990,10 +990,11 @@ const Substation3DScene: React.FC<Substation3DSceneProps> = ({
 
   // Handle zoom level changes
   React.useEffect(() => {
+    const factor = 1 / zoomLevel;
     const newPosition: [number, number, number] = [
-      10 * zoomLevel,
-      8 * zoomLevel,
-      10 * zoomLevel
+      10 * factor,
+      8 * factor,
+      10 * factor
     ];
     setCameraPosition(newPosition);
   }, [zoomLevel]);
@@ -1051,12 +1052,12 @@ const Substation3DScene: React.FC<Substation3DSceneProps> = ({
           }}
         >
           <Suspense fallback={null}>
-            <PerspectiveCamera makeDefault position={cameraPosition} fov={60 / zoomLevel} />
+            <PerspectiveCamera makeDefault position={cameraPosition} fov={60} />
             <OrbitControls
               enablePan={true}
               enableZoom={true}
               enableRotate={true}
-              minDistance={20}
+              minDistance={5}
               maxDistance={100}
               maxPolarAngle={Math.PI / 2.2}
               enableDamping={true}
