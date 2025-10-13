@@ -90,10 +90,9 @@
   flex-shrink: 0;
 }
 
-/* Keep icon colors in dark mode */
-.dark .kpi-icon svg {
-  color: inherit !important;
-}
+/* Keep icon colors in dark mode: allow inline SVG color overrides (prefer inline styles);
+   do not force SVG color to inherit which was causing icon color changes in dark mode */
+
 
 .kpi-content {
   flex: 1;
@@ -274,9 +273,7 @@
 }
 
 /* Keep icon colors in dark mode */
-.dark .qac-icon svg {
-  color: inherit !important;
-}
+
 
 .quick-access-card h3 {
   font-size: 16px;
