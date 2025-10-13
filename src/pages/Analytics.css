@@ -168,6 +168,15 @@
 }
 .model-status { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
 .model-status.active { background: #d1fae5; color: #065f46; }
+
+/* Ensure the active model status is visible in dark mode. There is a broad
+   rule that forces span colors to white in dark mode, so explicitly set
+   background and text color for the active badge here (use !important on
+   color to override the broad selector). */
+.dark .model-status.active {
+  background: #064e3b; /* darker green background */
+  color: #d1fae5 !important; /* light green text for contrast */
+}
 .model-details { display: flex; flex-direction: column; gap: 10px; }
 .model-detail { display: flex; justify-content: space-between; font-size: 13px; }
 .detail-label { color: #6b7280; }

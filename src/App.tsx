@@ -17,6 +17,7 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
+import OperatorTraining from './pages/OperatorTraining';
 import './App.css';
 
 // Simple authentication check
@@ -54,6 +55,7 @@ function App() {
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/notifications" element={<Notifications />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/training" element={<OperatorTraining />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>
