@@ -1,3 +1,8 @@
+.home-stat-label {
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: 600;
+}
 .home-page {
   min-height: 100vh;
   overflow-x: hidden;

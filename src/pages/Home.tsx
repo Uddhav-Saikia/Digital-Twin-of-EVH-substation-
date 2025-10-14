@@ -114,7 +114,7 @@ const Home: React.FC = () => {
             {stats.map((stat, index) => (
               <div key={index} className="stat-box">
                 <div className="stat-value">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
+                <div className="home-stat-label">{stat.label}</div>
               </div>
             ))}
           </div>
