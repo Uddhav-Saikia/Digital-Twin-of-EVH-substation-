@@ -30,7 +30,7 @@ const Home: React.FC = () => {
       icon: <Activity size={32} />,
       title: 'Real-Time Monitoring',
       description: 'Monitor all substation equipment with live SCADA data and instant alerts',
-      color: '#3b82f6'
+      color: '#06b6d4'
     },
     {
       icon: <LineChart size={32} />,
@@ -54,13 +54,13 @@ const Home: React.FC = () => {
       icon: <Shield size={32} />,
       title: 'Advanced Protection',
       description: 'Comprehensive protection systems monitoring and simulation',
-      color: '#ef4444'
+      color: '#f43f5e'
     },
     {
       icon: <TrendingUp size={32} />,
       title: 'Performance Reports',
       description: 'Detailed analytics and customizable reporting dashboard',
-      color: '#06b6d4'
+      color: '#22d3ee'
     }
   ];
 
